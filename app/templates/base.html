@@ -1,0 +1,19 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+    {% if title %}
+        {{ title }} - Sense Makes Math
+    {% else %}
+        Sense Makes Math
+    {% endif %}
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% block app_content %} {% endblock %}
+    </div>
+{% endblock %}
