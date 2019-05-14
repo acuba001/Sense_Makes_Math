@@ -2,5 +2,12 @@
 {% block app_content %}
     <div class="container bg-light">
         <p>This is index</p>
+        <a href="https://twitter.com/sensemakesmath?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @sensemakesmath</a>
+        <a class="twitter-timeline" href="https://twitter.com/SenseMakesMath?ref_src=twsrc%5Etfw">Tweets by SenseMakesMath</a>
     </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endblock %}
