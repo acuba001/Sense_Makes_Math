@@ -4,7 +4,11 @@
         <p>This is index</p>
         <a href="https://twitter.com/sensemakesmath?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @sensemakesmath</a>
         <a class="twitter-timeline" href="https://twitter.com/SenseMakesMath?ref_src=twsrc%5Etfw">Tweets by SenseMakesMath</a>
-        
+        <div class="container">
+            {% for video in videos %}
+            {% include '_video.html' %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
 
