@@ -1,4 +1,8 @@
 import React from 'react';
+
+import {Provider} from 'react-redux'
+import store from './store'
+
 import banner from './website-header.jpg'
 import './App.css';
 
@@ -8,7 +12,7 @@ import Footer from './components/layout/Footer'
 
 function App() {
   return (
-    <React.Fragment>
+    <Provider store={store}>
       <div className="bg-white">
         <img className="mx-auto mb-3 d-block img-fluid" src={banner} alt="" />
       </div>
@@ -34,7 +38,7 @@ function App() {
         </div>
       </div>
       <Footer/>
-    </React.Fragment>
+    </Provider>
   );
 }
 
