@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
+import {connect} from 'react-redux'
 
-export default class Sidebar extends Component {
+class Sidebar extends Component {
   render() {
+    const {latestVideo} = this.props
     return (
       <div className="container">
         <br />
@@ -16,6 +18,9 @@ export default class Sidebar extends Component {
         <div className="card rounded-0 mb-3">
           <div className="card-header text-center">
             <h4>LATEST VIDEO</h4>
+          </div>
+          <div className="card-body embed-responsive embed-responsive-16by9">
+              <iframe class="embed-responsive-item" title={latestVideo} src={'https://www.youtube.com/embed/' + latestVideo} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
           </div>
         </div>
         <div className="card rounded-0 mb-3">
@@ -54,3 +59,5 @@ export default class Sidebar extends Component {
     )
   }
 }
+
+export default connect((state) => ({ latestVideo: state.youtube.recentVideos[0] }))(Sidebar)
