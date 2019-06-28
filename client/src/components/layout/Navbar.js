@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 
+import home from './images/Navbar/navi-home.jpg'
 import shows from './images/Navbar/navi-shows.jpg'
 import socialMedia from './images/Navbar/navi-social-media.jpg'
 import store from './images/Navbar/navi-store.jpg'
 import supportUs from './images/Navbar/navi-support-us.jpg'
 import about from './images/Navbar/navi-about.jpg'
 
+import homeGrey from './images/Navbar/navi-home-over.jpg'
 import showsGrey from './images/Navbar/navi-shows-over.jpg'
 import socialMediaGrey from './images/Navbar/navi-social-media-over.jpg'
 import storeGrey from './images/Navbar/navi-store-over.jpg'
@@ -19,6 +21,7 @@ export default class Navbar extends Component {
     super(props)
 
     this.state = {
+      homeHover: false,
       showsHover: false,
       socialMediaHover: false,
       storeHover: false,
@@ -38,12 +41,20 @@ export default class Navbar extends Component {
   render() {
 
     const {
+      homeHover,
       showsHover, 
       socialMediaHover, 
       storeHover, 
       supportUsHover, 
       aboutHover
     } = this.state
+
+    const homeElem = <img 
+      onMouseEnter={this.onMouseEnter.bind(this,"homeHover")} 
+      onMouseLeave={this.onMouseLeave.bind(this,"homeHover")}
+      src={homeHover ? homeGrey : home} 
+      alt="HOME"
+    />
 
     const showsElem = <img 
       onMouseEnter={this.onMouseEnter.bind(this,"showsHover")} 
@@ -78,7 +89,7 @@ export default class Navbar extends Component {
 
     return (
       <div className="row">
-        <div className="col-lg-2 text-center my-3"><a href="/" className="nounderline text-dark nohover">HOME</a></div>
+        <div className="col-lg-2 text-center my-3"><a href="/" className="nounderline text-dark nohover">{homeElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="/shows" className="nounderline text-dark">{showsElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="https://www.facebook.com/SenseMakesMath/" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{socialMediaElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="http://sensemakesmath.storenvy.com/" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{storeElem}</a></div>
