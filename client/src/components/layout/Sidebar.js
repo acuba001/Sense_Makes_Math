@@ -104,7 +104,7 @@ class Sidebar extends Component {
             </a>
           </div>
           <div className="p-2">
-            <a href="https://www.youtube.com/channel/UCI3K1J8do2RAa0wC60YGK5Q" className="btn btn-light border border-secondary boarder-rounded-0" target="_blank" rel="noopener noreferrer">
+            <a href="www.youtube.com/sensemakesmath" className="btn btn-light border border-secondary boarder-rounded-0" target="_blank" rel="noopener noreferrer">
               <i className="fab fa-youtube"></i>
             </a>
           </div>

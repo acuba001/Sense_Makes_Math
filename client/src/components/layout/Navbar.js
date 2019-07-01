@@ -91,7 +91,7 @@ export default class Navbar extends Component {
       <div className="row">
         <div className="col-lg-2 text-center my-3"><a href="/" className="nounderline text-dark nohover">{homeElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="/shows" className="nounderline text-dark">{showsElem}</a></div>
-        <div className="col-lg-2 text-center my-3"><a href="https://www.facebook.com/SenseMakesMath/" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{socialMediaElem}</a></div>
+        <div className="col-lg-2 text-center my-3"><a href="https://twitter.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{socialMediaElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="http://sensemakesmath.storenvy.com/" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{storeElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="https://www.patreon.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{supportUsElem}</a></div>
         <div className="col-lg-2 text-center my-3"><a href="/about" className="nounderline text-dark">{aboutElem}</a></div>
