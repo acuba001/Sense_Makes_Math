@@ -6,6 +6,10 @@ class Config(object):
     GOOGLE_API_KEY=os.environ.get('GOOGLE_API_KEY') 
     FACEBOOK_APP_ID=os.environ.get('FACEBOOK_APP_ID')
     FACEBOOK_API_VERSION=os.environ.get('FACEBOOK_API_VERSION')
+    FACEBOOK_DATA_MAXRESULTS=int(os.environ.get('FACEBOOK_DATA_MAXRESULTS') or 10)
+    FACEBOOK_DATA_FETCH_PER_DAY=int(os.environ.get('FACEBOOK_DATA_FETCH_PER_DAY') or 48)
+    BLOGGER_DATA_FETCH_PER_DAY=int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY') or 15)
+    BLOGGER_PAGE_BLOG_ID=os.environ.get('BLOGGER_PAGE_BLOG_ID')
     
     # OPTIONAL
     YOUTUBE_DATA_FETCH_PER_DAY=int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY') or 48)
