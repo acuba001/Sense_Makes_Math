@@ -19,13 +19,14 @@ def index():
 def fbPosts():
     posts = getFacebookPosts()
     return jsonify(posts)
-
+ 
 @bp.route('/yt-posts')
 def ytPosts():
+        data = getYouTubeData()
 	return render_template(
         '_video.html',
-        posts = getYouTubeData(),
-        channelID=current_app.config['YOUTUBE_CHANNEL_ID']
+        posts = data,
+        channelID = current_app.config['YOUTUBE_CHANNEL_ID']
         )
 
 @bp.route('/blog-posts')
