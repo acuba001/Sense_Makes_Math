@@ -14,12 +14,12 @@ def index():
         fbAppId=current_app.config['FACEBOOK_APP_ID'],
         fbAppVer=current_app.config['FACEBOOK_API_VERSION']
     )
-    
+
 @bp.route('/fb-posts')
 def fbPosts():
     posts = getFacebookPosts()
     return jsonify(posts)
-    
+
 @bp.route('/yt-posts')
 def ytPosts():
 	return render_template(
@@ -27,7 +27,7 @@ def ytPosts():
         posts = getYouTubeData(),
         channelID=current_app.config['YOUTUBE_CHANNEL_ID']
         )
-    
+
 @bp.route('/blog-posts')
 def blogPosts():
 	return jsonify({'blog_posts': getBloggerData()})
