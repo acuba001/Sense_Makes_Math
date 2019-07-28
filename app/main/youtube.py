@@ -1,14 +1,3 @@
-# TodoList
-# 1) [TODO] Scrape the names of all the methods accepted as 
-# parameters from the site: https://developers.google.com/youtube/v3/docs/
-#
-# 2) [TODO] Create a pidgeon-box for all playlists associated with 'channelId'.
-# the keys  will be the 'playlistId' and the values will be the list of all videos
-# associated with both 'channelId' and 'playlistId'
-#
-# 3) [TODO] Incorporate the the 'pidgeon-box' into the router
-#
-#
 from app import app, cache
 
 import requests
@@ -59,6 +48,7 @@ def getYouTubeData():
     res = requests.get(url, params=params)
     return res.json()['items']
 
+@cache.cached(timeout=timeout, key_prefix='getAllYouTubePlaylists')
 def getAllYouTubePlaylists():
     url = 'https://www.googleapis.com/youtube/v3/playlists'
     params = {
@@ -117,5 +107,39 @@ def getAllYouTubePlaylists():
     #   }
     # }
     #
+    res = requests.get(url, params=params)
+    return res.json()['items']
+
+@cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideosByPlaylistId')
+def getAllYouTubeVideosByPlaylistId():
+    url = 'https://www.googleapis.com/youtube/v3/playlistItems'
+    params = {
+        'key': app.config['GOOGLE_API_KEY'],
+        'channelId': app.config['YOUTUBE_CHANNEL_ID'],
+        'part': 'id',
+        'playlistId': 'date',
+        'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS'],
+        'onBehalfOfContentOwner': '',
+        'pageToken': app.config['YOUTUBE_PAGE_TOKEN'],
+        'videoId': ""
+    }
+    # [NOTE] DO NOT DELETE UNTIL IT IS INCORPORATED INTO THE ROUTER  
+    #                                         
+    # This is the schema of each item in the list returned by
+    # making a 'GET' request to 'https://developers.google.com/youtube/v3/docs/playlistItems/list'
+    # 
+    #     {
+    #   "kind": "youtube#playlistItemListResponse",
+    #   "etag": etag,
+    #   "nextPageToken": string,
+    #   "prevPageToken": string,
+    #   "pageInfo": {
+    #     "totalResults": integer,
+    #     "resultsPerPage": integer
+    #   },
+    #   "items": [
+    #     playlistItem Resource
+    #   ]
+    # }
     res = requests.get(url, params=params)
     return res.json()['items']

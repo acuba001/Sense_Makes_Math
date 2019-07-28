@@ -7,6 +7,7 @@ class Config(object):
     FACEBOOK_APP_ID=os.environ.get('FACEBOOK_APP_ID')
     FACEBOOK_API_VERSION=os.environ.get('FACEBOOK_API_VERSION')
     BLOGGER_PAGE_BLOG_ID=os.environ.get('BLOGGER_PAGE_BLOG_ID')
+    # YOUTUBE_PAGE_TOKEN=os.environ.get('YOUTUBE_PAGE_TOKEN')
     
     # OPTIONAL
     FACEBOOK_DATA_MAXRESULTS=int(os.environ.get('FACEBOOK_DATA_MAXRESULTS') or 10)
