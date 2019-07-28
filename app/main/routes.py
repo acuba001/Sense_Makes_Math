@@ -1,8 +1,8 @@
 from app.main import bp
-from app.main.youtube import getYouTubeData
+from app.main.youtube import getYouTubeData, getAllYouTubeVideosByPlaylistId
 from app.main.facebook import getFacebookPosts
 from app.main.blogger import getBloggerData
-from flask import current_app, render_template, jsonify
+from flask import current_app, render_template, jsonify, abort
 
 @bp.route('/')
 @bp.route('/index')
@@ -18,17 +18,14 @@ def index():
 @bp.route('/fb-posts')
 def fbPosts():
     posts = getFacebookPosts()
-    return jsonify(posts)
+    return jsonify({'posts': posts})
  
 @bp.route('/yt-posts')
 def ytPosts():
-        data = getYouTubeData()
-	return render_template(
-        '_video.html',
-        posts = data,
-        channelID = current_app.config['YOUTUBE_CHANNEL_ID']
-        )
-
+    posts = getYouTubeData()
+    return jsonify({'posts': posts})
+    
 @bp.route('/blog-posts')
 def blogPosts():
-	return jsonify({'blog_posts': getBloggerData()})
+	posts = getBloggerData()	
+	return jsonify({'posts': posts})
