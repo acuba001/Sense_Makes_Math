@@ -4,6 +4,7 @@ from flask_bootstrap import Bootstrap
 from flask_caching import Cache
 
 app = Flask(__name__)
+
 app.config.from_object(Config)
 
 bootstrap = Bootstrap(app=app)
@@ -17,16 +18,6 @@ app.register_blueprint(main_bp)
 app.register_blueprint(errors_bp)
 app.register_blueprint(libraries_bp)
 
-# =================================================================================
-#  TodoList
-# =================================================================================
-# 1) [TODO] Create a 'pidgeon-box' for all playlists associated with 'channelId'.
-# the keys  will be the 'playlistId' and the values will be the list of all videos
-# associated with both 'channelId' and 'playlistId'
-#   
-# 2) [TODO] Incorporate the the 'pidgeon-box' into the router
-#
-#
 
 # =============================================================================================
 #  Resources and resource types
