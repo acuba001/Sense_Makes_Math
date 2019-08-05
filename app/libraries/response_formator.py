@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup as soup
+# from bs4 import BeautifulSoup as soup
 import re
 
 def strip_html(raw_html):
