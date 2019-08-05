@@ -4,142 +4,74 @@ import requests
 
 timeout = 60*app.config['YOUTUBE_DATA_FETCH_PER_DAY']/24
 
-@cache.cached(timeout=timeout, key_prefix='getYouTubeData')
-def getYouTubeData():
-    url = 'https://www.googleapis.com/youtube/v3/search'
-    params = {
-        'key': app.config['GOOGLE_API_KEY'],
-        'channelId': app.config['YOUTUBE_CHANNEL_ID'],
-        'part': 'id',
-        'order': 'date',
-        'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS']
-    }
-
-    # [NOTE] DO NOT DELETE UNTIL IT IS INCORPORATED INTO THE ROUTER 
-    #                                         
-    # This is the schema of each item in the list returned by
-    # making a 'GET' request to 'https://www.googleapis.com/youtube/v3/search'
-    #
-    # {
-    #   "kind": "youtube#searchResult",
-    #   "etag": etag,
-    #   "id": {
-    #     "kind": string,
-    #     "videoId": string,
-    #     "channelId": string,
-    #     "playlistId": string
-    #   },
-    #   "snippet": {
-    #     "publishedAt": datetime,
-    #     "channelId": string,
-    #     "title": string,
-    #     "description": string,
-    #     "thumbnails": {
-    #       (key): {
-    #         "url": string,
-    #         "width": unsigned integer,
-    #         "height": unsigned integer
-    #       }
-    #     },
-    #     "channelTitle": string,
-    #     "liveBroadcastContent": string
-    #   }
-    # }  
-    res = requests.get(url, params=params)
-    return res.json()['items']
-
 @cache.cached(timeout=timeout, key_prefix='getAllYouTubePlaylists')
 def getAllYouTubePlaylists():
-    url = 'https://www.googleapis.com/youtube/v3/playlists'
-    params = {
+    playlist_url = 'https://www.googleapis.com/youtube/v3/playlists'
+    playlist_params = {
         'key': app.config['GOOGLE_API_KEY'],
+        'part': 'id, player, snippet',
         'channelId': app.config['YOUTUBE_CHANNEL_ID'],
-        'part': 'id',
-        'order': 'date',
         'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS']
     }
-
-    # [NOTE] DO NOT DELETE UNTIL IT IS INCORPORATED INTO THE ROUTER  
-    #                                         
-    # This is the schema of each item in the list returned by
-    # making a 'GET' request to 'https://www.googleapis.com/youtube/v3/playlists'
-    # 
-    # {
-    #   "kind": "youtube#playlist",                                                 
-    #   "etag": etag,
-    #   "id": string,
-    #   "snippet": {
-    #     "publishedAt": datetime,
-    #     "channelId": string,
-    #     "title": string,
-    #     "description": string,
-    #     "thumbnails": {
-    #       (key): {
-    #         "url": string,
-    #         "width": unsigned integer,
-    #         "height": unsigned integer
-    #       }
-    #     },
-    #     "channelTitle": string,
-    #     "tags": [
-    #       string
-    #     ],
-    #     "defaultLanguage": string,
-    #     "localized": {
-    #       "title": string,
-    #       "description": string
-    #     }
-    #   },
-    #   "status": {
-    #     "privacyStatus": string
-    #   },
-    #   "contentDetails": {
-    #     "itemCount": unsigned integer
-    #   },
-    #   "player": {
-    #     "embedHtml": string
-    #   },
-    #   "localizations": {
-    #     (key): {
-    #       "title": string,
-    #       "description": string
-    #     }
-    #   }
-    # }
-    #
-    res = requests.get(url, params=params)
-    return res.json()['items']
+    playlistIds = []
+    try:
+        # To see what the response object looks like, 
+        # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
+        playlist_res = requests.get(playlist_url, params=playlist_params).json() or {}
+        playlist_list = playlist_res['items']
+    except Exception as err:
+        print(err)
+    for item in playlist_list:
+        if item['kind'] == 'youtube#playlist':
+            playlistIds.append({
+                'id': item['id'],
+                'player': item['player']
+            })
+    return playlistIds
 
 @cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideosByPlaylistId')
-def getAllYouTubeVideosByPlaylistId():
-    url = 'https://www.googleapis.com/youtube/v3/playlistItems'
+def getYouTubeVideoIdsByPlaylist(playlistId):
+    playlistItems_request_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
+    playlistItems_params = {
+        'key': app.config['GOOGLE_API_KEY'],
+        'part': 'snippet',
+        'playlistId': playlistId,
+        'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS']
+    }
+    videoIds = []
+    try:
+        # To see what the response object looks like, 
+        # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
+        playlistItems_res = requests.get(playlistItems_request_url, params=playlistItems_params).json() or {}
+        playlistItems_list = playlistItems_res['items']
+    except Exception as err:
+        print(err)
+    for item in playlistItems_list:
+        videoIds.append(item['snippet']['resourceId']['videoId'])
+    return videoIds
+
+@cache.cached(timeout=timeout, key_prefix='getVideoResourceById')
+def getVideoResourceById(videoId):
+    video_request_url = 'https://www.googleapis.com/youtube/v3/videos'
     params = {
         'key': app.config['GOOGLE_API_KEY'],
-        'channelId': app.config['YOUTUBE_CHANNEL_ID'],
-        'part': 'id',
-        'playlistId': 'date',
-        'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS'],
-        'onBehalfOfContentOwner': '',
-        'pageToken': app.config['YOUTUBE_PAGE_TOKEN'],
-        'videoId': ""
+        'part': 'id, player',
+        'id': videoId,
+        'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS']
+
     }
-    # [NOTE] DO NOT DELETE UNTIL IT IS INCORPORATED INTO THE ROUTER  
-    #                                         
-    # This is the schema of each item in the list returned by
-    # making a 'GET' request to 'https://developers.google.com/youtube/v3/docs/playlistItems/list'
-    # 
-    #     {
-    #   "kind": "youtube#playlistItemListResponse",
-    #   "etag": etag,
-    #   "nextPageToken": string,
-    #   "prevPageToken": string,
-    #   "pageInfo": {
-    #     "totalResults": integer,
-    #     "resultsPerPage": integer
-    #   },
-    #   "items": [
-    #     playlistItem Resource
-    #   ]
-    # }
-    res = requests.get(url, params=params)
+    # To see what the response object looks like, 
+    # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
+    res = requests.get(video_request_url, params=params)
     return res.json()['items']
+
+
+@cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideos')
+def getAllYouTubeVideos():
+    allYouTubeVideos = []
+    listOfPLaylistIds = getAllYouTubePlaylists()
+    for pl in listOfPLaylistIds:
+        listOfVideoIdsByPlaylistId = getYouTubeVideoIdsByPlaylist(pl['id'])
+        for vid in listOfVideoIdsByPlaylistId:
+            allYouTubeVideos.append(getVideoResourceById(vid)[0])
+    return allYouTubeVideos
