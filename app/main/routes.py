@@ -4,6 +4,7 @@ from app.main.facebook import getFacebookPosts
 from app.main.blogger import getBloggerData
 from flask import current_app, render_template, jsonify, abort
 
+
 @bp.route('/')
 @bp.route('/index')
 def index():
@@ -15,6 +16,7 @@ def index():
         fbAppVer=current_app.config['FACEBOOK_API_VERSION']
     )
 
+# @bp.route()
 @bp.route('/fb-posts')
 def fbPosts():
     posts = getFacebookPosts()

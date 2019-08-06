@@ -4,7 +4,6 @@ import requests
 
 timeout = 60*app.config['YOUTUBE_DATA_FETCH_PER_DAY']/24
 
-@cache.cached(timeout=timeout, key_prefix='getAllYouTubePlaylists')
 def getAllYouTubePlaylists():
     playlist_url = 'https://www.googleapis.com/youtube/v3/playlists'
     playlist_params = {
@@ -25,11 +24,11 @@ def getAllYouTubePlaylists():
         if item['kind'] == 'youtube#playlist':
             playlistIds.append({
                 'id': item['id'],
-                'player': item['player']
+                'player': item['player'],
+                'snippet': item['snippet'],
             })
     return playlistIds
 
-@cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideosByPlaylistId')
 def getYouTubeVideoIdsByPlaylist(playlistId):
     playlistItems_request_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
     playlistItems_params = {
@@ -46,11 +45,11 @@ def getYouTubeVideoIdsByPlaylist(playlistId):
         playlistItems_list = playlistItems_res['items']
     except Exception as err:
         print(err)
+
     for item in playlistItems_list:
         videoIds.append(item['snippet']['resourceId']['videoId'])
     return videoIds
 
-@cache.cached(timeout=timeout, key_prefix='getVideoResourceById')
 def getVideoResourceById(videoId):
     video_request_url = 'https://www.googleapis.com/youtube/v3/videos'
     params = {
@@ -58,7 +57,6 @@ def getVideoResourceById(videoId):
         'part': 'id, player',
         'id': videoId,
         'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS']
-
     }
     # To see what the response object looks like, 
     # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
@@ -73,5 +71,9 @@ def getAllYouTubeVideos():
     for pl in listOfPLaylistIds:
         listOfVideoIdsByPlaylistId = getYouTubeVideoIdsByPlaylist(pl['id'])
         for vid in listOfVideoIdsByPlaylistId:
-            allYouTubeVideos.append(getVideoResourceById(vid)[0])
+            videoResource = getVideoResourceById(vid)[0]
+            if videoResource not in allYouTubeVideos:
+                videoResource['playlistId'] = pl['id']
+                allYouTubeVideos.append(videoResource)
+                
     return allYouTubeVideos
