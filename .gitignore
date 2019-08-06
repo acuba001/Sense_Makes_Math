@@ -4,3 +4,4 @@ venv
 __pycache__
 *.pyc
 client/node_modules
+client/.env

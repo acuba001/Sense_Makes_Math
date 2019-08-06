@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import {getYouTubeVideos} from '../../actions/youtubeActions'
 
 import pic1 from './images/Sidebar/RYS-all-Advertisement.jpg'
 import pic2 from './images/Sidebar/RYS-empty-Advertisement.jpg'
@@ -10,8 +11,15 @@ import pic6 from './images/Sidebar/RYS-R-Advertisement.jpg'
 import pic7 from './images/Sidebar/RYS-C-Advertisement.jpg'
 
 class Sidebar extends Component {
+
+  componentDidMount(){
+    this.props.getYouTubeVideos()
+  }
+
   render() {
-    const { latestVideo } = this.props
+    const { recentVideos } = this.props
+    const latestVideo = recentVideos ? recentVideos[0] : null
+    const latestVideoId = latestVideo ? latestVideo.id : null
     return (
       <div className="container">
         <br />
@@ -28,7 +36,10 @@ class Sidebar extends Component {
             <h4>LATEST VIDEO</h4>
           </div>
           <div className="card-body embed-responsive embed-responsive-16by9">
-            <iframe className="embed-responsive-item" title={latestVideo} src={'https://www.youtube.com/embed/' + latestVideo} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+            {latestVideo ? 
+              (<iframe className="embed-responsive-item" title={latestVideoId} src={'https://www.youtube.com/embed/' + latestVideoId} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>)
+              : null
+            }
           </div>
         </div>
         {/* TODO: For advertising latest podcast */}
@@ -119,4 +130,8 @@ class Sidebar extends Component {
   }
 }
 
-export default connect((state) => ({ latestVideo: state.youtube.recentVideos[0] }))(Sidebar)
+const mapStateToProps = state => ({
+  recentVideos: state.youtube.recentVideos 
+}) 
+
+export default connect(mapStateToProps, {getYouTubeVideos})(Sidebar)

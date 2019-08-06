@@ -1,7 +1,8 @@
 import {GET_YOUTUBE_VIDEOS} from './types'
 
-export const getYouTubeVideos = () => async dispatch => {
-  // const res = await fetch('ENDPOINT_URL')
-  // const data = await res.json()
-  // dispatch({type: GET_YOUTUBE_VIDEOS, payload: data})
+export const getYouTubeVideos = () => dispatch => {
+  fetch(process.env.REACT_APP_FLASK_URI + '/yt-posts')
+    .then(res => res.json())
+    .then(data => dispatch({type: GET_YOUTUBE_VIDEOS, payload: data.posts}))
+    .catch(e => console.log(e))
 }
