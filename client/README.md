@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Be Sure To Add a `.env`
+
+A environment variables should be add to the react app that appear in the `.env.example` file. If you are running this locally, create a file called `.env` under this `client/` directory that is a copy of the `.env.example` file and fill in the values appropriately.
+
 ## Available Scripts
 
 In the project directory, you can run:
