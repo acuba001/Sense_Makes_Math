@@ -3,10 +3,11 @@ from app.main.youtube import getAllYouTubeVideos
 from app.main.facebook import getFacebookPosts
 from app.main.blogger import getBloggerData
 from flask import current_app, render_template, jsonify, abort
-
+from flask_cors import cross_origin
 
 @bp.route('/')
 @bp.route('/index')
+@cross_origin()
 def index():
     return render_template(
         'index.html', 
@@ -23,6 +24,7 @@ def fbPosts():
     return jsonify({'posts': posts})
  
 @bp.route('/yt-posts')
+@cross_origin()
 def ytPosts():
     # Real Sample of post 
     # {
@@ -37,6 +39,7 @@ def ytPosts():
     return jsonify({'posts': posts})
     
 @bp.route('/blog-posts')
+@cross_origin()
 def blogPosts():
 	posts = getBloggerData()	
 	return jsonify({'posts': posts})
