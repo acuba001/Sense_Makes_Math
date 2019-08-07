@@ -4,6 +4,7 @@ from flask_bootstrap import Bootstrap
 from flask_caching import Cache
 
 app = Flask(__name__)
+
 app.config.from_object(Config)
 
 bootstrap = Bootstrap(app=app)

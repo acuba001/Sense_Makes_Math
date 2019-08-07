@@ -19,6 +19,7 @@ def index():
 
 # @bp.route()
 @bp.route('/fb-posts')
+@cross_origin()
 def fbPosts():
     posts = getFacebookPosts()
     return jsonify({'posts': posts})
@@ -26,15 +27,6 @@ def fbPosts():
 @bp.route('/yt-posts')
 @cross_origin()
 def ytPosts():
-    # Real Sample of post 
-    # {
-    #   "etag": "\"Bdx4f4ps3xCOOo1WZ91nTLkRZ_c/3W8Ro0CnpzXIr0qcQ4b6nJvBqdQ\"", 
-    #   "id": "5quyA4w_tV8", 
-    #   "kind": "youtube#video", 
-    #   "player": {
-    #     "embedHtml": "<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/5quyA4w_tV8\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
-    #   }
-    # }
     posts = getAllYouTubeVideos()
     return jsonify({'posts': posts})
     

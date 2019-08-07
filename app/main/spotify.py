@@ -9,7 +9,8 @@ def getAllSpotifyPlaylists():
     listOfSpotifyPlaylists = []
     playlist_url = ''
     playlist_params = {
-        'id': app.config['SPOTIFY_CLIENT_ID']
+        'id': app.config['SPOTIFY_CLIENT_ID'],
+        'secret': app.config['SPOTIFY_CLIENT_SECRET']
     }
     playlist_res = requests.get(playlist_url, params=playlist_params).json() or {}
     return listOfSpotifyPlaylists

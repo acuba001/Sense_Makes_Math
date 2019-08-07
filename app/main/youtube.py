@@ -45,7 +45,6 @@ def getYouTubeVideoIdsByPlaylist(playlistId):
         playlistItems_list = playlistItems_res['items']
     except Exception as err:
         print(err)
-
     for item in playlistItems_list:
         videoIds.append(item['snippet']['resourceId']['videoId'])
     return videoIds
