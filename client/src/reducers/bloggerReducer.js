@@ -1,15 +1,15 @@
-import { GET_YOUTUBE_VIDEOS } from '../actions/types'
+import { GET_BLOGGER_POSTS } from '../actions/types'
 
 const initialState = {
-  recentVideos: []
+  recentBlogPosts: []
 }
 
 export default (state=initialState, action) => {
   switch (action.type) {
-    case GET_YOUTUBE_VIDEOS:
+    case GET_BLOGGER_POSTS:
       return {
         ...state,
-        recentVideos: action.payload
+        recentBlogPosts: action.payload
       }
     default:
       return state
