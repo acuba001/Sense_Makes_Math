@@ -6,3 +6,4 @@ __pycache__
 client/node_modules
 client/.env
 sampleYoutubeOutput
+client/sampleYoutubeOutput
