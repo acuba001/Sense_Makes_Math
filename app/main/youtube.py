@@ -17,17 +17,18 @@ def getAllYouTubePlaylists():
         # To see what the response object looks like, 
         # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
         playlist_res = requests.get(playlist_url, params=playlist_params).json() or {}
+
         playlist_list = playlist_res['items']
+        for item in playlist_list:
+            if item['kind'] == 'youtube#playlist':
+                playlistIds.append({
+                    'id': item['id'],
+                    'player': item['player'],
+                    'snippet': item['snippet'],
+                })
+        return playlistIds
     except Exception as err:
         print(err)
-    for item in playlist_list:
-        if item['kind'] == 'youtube#playlist':
-            playlistIds.append({
-                'id': item['id'],
-                'player': item['player'],
-                'snippet': item['snippet'],
-            })
-    return playlistIds
 
 def getYouTubeVideoUnitsByPlaylist(playlistId):
     playlistItems_request_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
@@ -43,16 +44,17 @@ def getYouTubeVideoUnitsByPlaylist(playlistId):
         # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
         playlistItems_res = requests.get(playlistItems_request_url, params=playlistItems_params).json()
         playlistItems_list = playlistItems_res['items']
+
+        for item in playlistItems_list:
+            isVideo = item['snippet']['resourceId']['kind'] == 'youtube#video'
+            if isVideo:
+                videoIdsBuckets.append({
+                    'videoId': item['snippet']['resourceId']['videoId'], 
+                    'bucket': playlistId
+                    })
+        return videoIdsBuckets
     except Exception as err:
         print(err)
-    for item in playlistItems_list:
-        isVideo = item['snippet']['resourceId']['kind'] == 'youtube#video'
-        if isVideo:
-            videoIdsBuckets.append({
-                'videoId': item['snippet']['resourceId']['videoId'], 
-                'bucket': playlistId
-                })
-    return videoIdsBuckets
 
 def getVideoResourceById(videoId):
     video_request_url = 'https://www.googleapis.com/youtube/v3/videos'
@@ -62,9 +64,13 @@ def getVideoResourceById(videoId):
         'id': videoId,
         'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS']
     }
-    # To see what the response object looks like, 
-    # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
-    res = requests.get(video_request_url, params=params)
+    try:
+        # To see what the response object looks like, 
+        # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
+        res = requests.get(video_request_url, params=params)
+    except Exception as err:
+        print(err)
+
     return res.json()['items']
 
 
@@ -76,11 +82,13 @@ def getAllYouTubeVideos():
     # Grab all 'Youtube' videoUnits
     listOfPLaylistIds = getAllYouTubePlaylists()
     for playlist in listOfPLaylistIds:
+        print(type(playlist))
         listOfVideoUnits = getYouTubeVideoUnitsByPlaylist(playlist['id'])
         yt_VideoUnits.extend(listOfVideoUnits)
 
     # Grab all 'YouTube' videos by 'videoId'
     for videoUnit in yt_VideoUnits:
+        print(type(videoUnit))
         videoResource = getVideoResourceById(videoUnit["videoId"])[0]
         if videoResource not in allYouTubeVideos:
             videoResource['playlistId'] = videoUnit["bucket"]
