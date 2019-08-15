@@ -4,6 +4,7 @@ import requests
 import inspect
 
 timeout = 60*app.config['YOUTUBE_DATA_FETCH_PER_DAY']/24
+ 
 def handleError(name, error):
     print("An error occured while executing @{}. Error thrown: {}".format(name, error))
 
@@ -82,8 +83,11 @@ def getAllYouTubeVideos():
             for item in listOfPlaylistItems:
                 item['playlistResource'] = playlistResource
                 allYouTubePlaylistItems.append(item)
-        print(allYouTubePlaylistItems)
-        allYouTubePlaylistItems_sorted = allYouTubePlaylistItems#.sort(key=lambda x:x['snippet']['publishedAt'])
+
+        # Sort the list chronologically by 'publishedDate'        
+        print("[LN 86] {}".format(allYouTubePlaylistItems[0]))
+        allYouTubePlaylistItems_sorted = allYouTubePlaylistItems.sort(key=lambda x:x.snippet.publishedAt)
+        print("[LN 86] {}".format(allYouTubePlaylistItems[0]))
 
         # Grab all 'YouTube' videos by 'videoId'
         for playlistItem in allYouTubePlaylistItems_sorted:
