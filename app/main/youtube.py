@@ -21,6 +21,7 @@ def getAllYouTubePlaylistResources():
         # To see what the response object looks like, 
         # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
         playlist_res = requests.get(playlist_url, params=playlist_params).json() or {}
+
         playlist_list = playlist_res['items']
         for item in playlist_list:
             isPlaylist =  item['kind'] == 'youtube#playlist'
@@ -83,24 +84,20 @@ def getAllYouTubeVideos():
             for item in listOfPlaylistItems:
                 item['playlistResource'] = playlistResource
                 allYouTubePlaylistItems.append(item)
-
+        
         # Sort the list chronologically by 'publishedDate'        
-        print("[LN 86] {}".format(allYouTubePlaylistItems[0]))
-        allYouTubePlaylistItems_sorted = allYouTubePlaylistItems.sort(key=lambda x:x.snippet.publishedAt)
-        print("[LN 86] {}".format(allYouTubePlaylistItems[0]))
+        allYouTubePlaylistItems_sorted = sorted(allYouTubePlaylistItems, key=lambda x: x["snippet"]["publishedAt"])
 
         # Grab all 'YouTube' videos by 'videoId'
         for playlistItem in allYouTubePlaylistItems_sorted:
-            videoResource = getYouTubeVideoResource(playlistItem["id"])[0]
-            print(videoResource)
+            videoResource = getYouTubeVideoResource(playlistItem["snippet"]["resourceId"]["videoId"])[0]
             videoUnit = {
                 'videoResource': videoResource, 
                 'playlistResource': playlistItem['playlistResource']
                 }
-            print(videoUnit)
-            if videoUnit in allYouTubeVideoUnits:
+            if videoUnit not in allYouTubeVideoUnits:
                 allYouTubeVideoUnits.append(videoUnit)
-    
+        # print(allYouTubeVideoUnits[0] or "It was empty, you fucked up")
         return allYouTubeVideoUnits
     except Exception as err:
         handleError(inspect.stack()[0][3], err)

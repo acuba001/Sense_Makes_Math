@@ -1,4 +1,3 @@
-# from bs4 import BeautifulSoup as soup
 import re
 
 def strip_html(raw_html):
@@ -15,4 +14,4 @@ def strip_html(raw_html):
 
     clean_html = clean_html.replace('&nbsp;', '')
 
-    return clean_html # or soup(raw_html, 'html.parser').text
+    return clean_html
