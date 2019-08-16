@@ -74,30 +74,26 @@ def getYouTubeVideoResource(videoId):
 
 @cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideos')
 def getAllYouTubeVideos():
-    allYouTubeVideoUnits = []
+    allYouTubeVideoResources = []
     allYouTubePlaylistItems = []
     try:
         listOfPLaylistResources = getAllYouTubePlaylistResources()
-        # Grab all 'Youtube' videoUnits
+        # Grab all 'Youtube' videoResources
         for playlistResource in listOfPLaylistResources:
             listOfPlaylistItems = getYouTubeVideoPlaylistItems(playlistResource['id'])
             for item in listOfPlaylistItems:
                 item['playlistResource'] = playlistResource
                 allYouTubePlaylistItems.append(item)
         
-        # Sort the list chronologically by 'publishedDate'        
+        # Sort the list, chronologically, by the 'publishedAt' date     
         allYouTubePlaylistItems_sorted = sorted(allYouTubePlaylistItems, key=lambda x: x["snippet"]["publishedAt"])
 
         # Grab all 'YouTube' videos by 'videoId'
         for playlistItem in allYouTubePlaylistItems_sorted:
-            videoResource = getYouTubeVideoResource(playlistItem["snippet"]["resourceId"]["videoId"])[0]
-            videoUnit = {
-                'videoResource': videoResource, 
-                'playlistResource': playlistItem['playlistResource']
-                }
-            if videoUnit not in allYouTubeVideoUnits:
-                allYouTubeVideoUnits.append(videoUnit)
-        # print(allYouTubeVideoUnits[0] or "It was empty, you fucked up")
-        return allYouTubeVideoUnits
+            resource = getYouTubeVideoResource(playlistItem["snippet"]["resourceId"]["videoId"])[0]
+            resource["playlistResource"] = playlistItem['playlistResource']
+            if resource not in allYouTubeVideoResources:
+                allYouTubeVideoResources.append(resource)
+        return allYouTubeVideoResources
     except Exception as err:
         handleError(inspect.stack()[0][3], err)
