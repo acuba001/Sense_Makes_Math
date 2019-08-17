@@ -9,7 +9,6 @@ class Shows extends Component {
 
   render() {
     const { youtube: { recentVideos } } = this.props
-    console.log(recentVideos.length ? recentVideos[0].id : null)
     return (
       <div className="container p-3">
         {recentVideos
