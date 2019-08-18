@@ -1,20 +1,3 @@
-# Examples of paths with which to make Blogger API calls
-#
-# https://www.googleapis.com/blogger/v3/users/userId
-# https://www.googleapis.com/blogger/v3/users/self
-# https://www.googleapis.com/blogger/v3/users/userId/blogs
-# https://www.googleapis.com/blogger/v3/users/self/blogs
-# https://www.googleapis.com/blogger/v3/blogs/blogId
-# https://www.googleapis.com/blogger/v3/blogs/byurl
-# https://www.googleapis.com/blogger/v3/blogs/blogId/posts
-# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/bypath
-# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/search
-# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/postId
-# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/postId/comments
-# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/postId/comments/commentId
-# https://www.googleapis.com/blogger/v3/blogs/blogId/pages
-# https://www.googleapis.com/blogger/v3/blogs/blogId/pages/pageId
-
 from app import app, cache
 from app.libraries import strip_html as strip
 
@@ -40,19 +23,3 @@ def getBloggerData():
         post = {'title': theTitle, 'content': strip(theContent)}
         coolarray.append(post)
     return coolarray
-
-# [TODO] Create a subscription
-# 
-# POST {base_URL}/subscriptions?part=snippet
-#  Request body:
-#   {
-#     'snippet': {
-#       'resourceId': {
-#         'kind': 'youtube#channel',
-#         'channelId': 'UC_x5XG1OV2P6uZZ5FSM9Ttw' 
-#        }
-#      }
-#   }
-
-
-
