@@ -17,7 +17,6 @@ def index():
         fbAppVer=current_app.config['FACEBOOK_API_VERSION']
     )
 
-# @bp.route()
 @bp.route('/fb-posts')
 @cross_origin()
 def fbPosts():
