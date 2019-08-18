@@ -10,6 +10,7 @@ class Config(object):
     SPOTIFY_CLIENT_ID=os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET=os.environ.get('SPOTIFY_CLIENT_SECRET')
     # YOUTUBE_PAGE_TOKEN=os.environ.get('YOUTUBE_PAGE_TOKEN')
+    CACHE_TYPE=os.environ.get('CACHE_TYPE') or 'simple'
     
     # OPTIONAL
     FACEBOOK_DATA_MAXRESULTS=int(os.environ.get('FACEBOOK_DATA_MAXRESULTS') or 10)
@@ -18,4 +19,3 @@ class Config(object):
     YOUTUBE_DATA_FETCH_PER_DAY=int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY') or 48)
     YOUTUBE_CHANNEL_ID=os.environ.get('YOUTUBE_CHANNEL_ID') or 'UCI3K1J8do2RAa0wC60YGK5Q'
     YOUTUBE_DATA_MAXRESULTS=int(os.environ.get('YOUTUBE_DATA_MAXRESULTS') or 10)
-    CACHE_TYPE=os.environ.get('CACHE_TYPE') or 'simple'

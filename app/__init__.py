@@ -21,16 +21,23 @@ app.register_blueprint(libraries_bp)
 # =================================================================================
 #  TodoList
 # =================================================================================
-# 1) [TODO] Create a 'pidgeon-box' for all playlists associated with 'channelId'.
-# the keys  will be the 'playlistId' and the values will be the list of all videos
-# associated with both 'channelId' and 'playlistId'
-#   
-# 2) [TODO] Incorporate the the 'pidgeon-box' into the router
-#
+# 1) Create a subscription
+# 
+#                POST {base_URL}/subscriptions?part=snippet
+#                Request body:
+#                {
+#                    'snippet': {
+#                    'resourceId': {
+#                        'kind': 'youtube#channel',
+#                        'channelId': 'UC_x5XG1OV2P6uZZ5FSM9Ttw' 
+#                    }
+#                    }
+#                }
 #
 
+
 # =============================================================================================
-#  Resources and resource types
+#  YouTube Resources and resource types
 #
 # [NOTE] A resource is an individual data entity with a unique identifier. 
 # The table below describes the different types of resources that you can interact with 
@@ -110,7 +117,7 @@ app.register_blueprint(libraries_bp)
 
 
 # ====================================================================================
-# Basic Operations on Resources
+# Basic Operations on YouTube Resources
 # 
 #   Operation                    Description
 # ====================================================================================
@@ -125,7 +132,7 @@ app.register_blueprint(libraries_bp)
 
 
 # =================================================================  
-# Supported Operations on Resources
+# Supported Operations on YouTube Resources
 # 
 #   Resource            list        insert      update      delete  
 # =================================================================
@@ -151,7 +158,7 @@ app.register_blueprint(libraries_bp)
 
 
 # ================================================================
-# Factors to Help Calculate Quota Usage of Resources
+# Factors to Help Calculate Quota Usage of YouTube Resources
 #  
 #  
 # [NOTE] Google calculates your quota usage by assigning a cost to 
@@ -194,7 +201,7 @@ app.register_blueprint(libraries_bp)
 
 
 # ===============================================================================
-# Examples of Computing Route Quotas
+# Examples of Computing YouTube Route Quotas
 #
 #
 # [NOTE] With these rules in mind, you can estimate the number of read, write, 
@@ -214,6 +221,23 @@ app.register_blueprint(libraries_bp)
 #           |   operations that each retrieve two resource parts.
 # -------------------------------------------------------------------------------
 
+# Examples of paths with which to make Blogger API calls
+#
+# https://www.googleapis.com/blogger/v3/users/userId
+# https://www.googleapis.com/blogger/v3/users/self
+# https://www.googleapis.com/blogger/v3/users/userId/blogs
+# https://www.googleapis.com/blogger/v3/users/self/blogs
+# https://www.googleapis.com/blogger/v3/blogs/blogId
+# https://www.googleapis.com/blogger/v3/blogs/byurl
+# https://www.googleapis.com/blogger/v3/blogs/blogId/posts
+# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/bypath
+# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/search
+# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/postId
+# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/postId/comments
+# https://www.googleapis.com/blogger/v3/blogs/blogId/posts/postId/comments/commentId
+# https://www.googleapis.com/blogger/v3/blogs/blogId/pages
+# https://www.googleapis.com/blogger/v3/blogs/blogId/pages/pageId
+
 
 # =====================================================
 # [NOTE] In app.init.py (i.e. this file)...
@@ -232,7 +256,7 @@ app.register_blueprint(libraries_bp)
 # ======================================================
 # [NOTE] In app.<component>.init.py...
 # 
-# [NOTE] Components are captured in a Blueprint and 
+# Components are captured in a Blueprint and 
 # are usable throughout the app. For example,  errors, 
 # libraries, main.
 #
@@ -263,3 +287,4 @@ app.register_blueprint(libraries_bp)
 #         abort(404)
 #
 # --------------------------------------------------------
+
