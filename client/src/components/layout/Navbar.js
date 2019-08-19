@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 
 import home from './images/Navbar/navi-home.jpg'
 import shows from './images/Navbar/navi-shows.jpg'
+import podcast from './images/Navbar/navi-podcast.jpg'
 import socialMedia from './images/Navbar/navi-social-media.jpg'
 import store from './images/Navbar/navi-store.jpg'
 import supportUs from './images/Navbar/navi-support-us.jpg'
@@ -9,6 +10,7 @@ import about from './images/Navbar/navi-about.jpg'
 
 import homeGrey from './images/Navbar/navi-home-over.jpg'
 import showsGrey from './images/Navbar/navi-shows-over.jpg'
+import podcastGrey from './images/Navbar/navi-podcast-over.jpg'
 import socialMediaGrey from './images/Navbar/navi-social-media-over.jpg'
 import storeGrey from './images/Navbar/navi-store-over.jpg'
 import supportUsGrey from './images/Navbar/navi-support-us-over.jpg'
@@ -23,6 +25,7 @@ export default class Navbar extends Component {
     this.state = {
       homeHover: false,
       showsHover: false,
+      podcastHover: false,
       socialMediaHover: false,
       storeHover: false,
       supportUsHover: false,
@@ -43,6 +46,7 @@ export default class Navbar extends Component {
     const {
       homeHover,
       showsHover, 
+      podcastHover,
       socialMediaHover, 
       storeHover, 
       supportUsHover, 
@@ -62,6 +66,14 @@ export default class Navbar extends Component {
       src={showsHover ? showsGrey : shows} 
       alt="SHOWS"
     />
+
+    const podcastElem = <img 
+      onMouseEnter={this.onMouseEnter.bind(this,"podcastHover")} 
+      onMouseLeave={this.onMouseLeave.bind(this,"podcastHover")}
+      src={podcastHover ? podcastGrey : podcast} 
+      alt="PODCAST"
+    />
+
     const socialMediaElem = <img 
       onMouseEnter={this.onMouseEnter.bind(this,"socialMediaHover")} 
       onMouseLeave={this.onMouseLeave.bind(this, "socialMediaHover")}
@@ -99,6 +111,9 @@ export default class Navbar extends Component {
              </li>
              <li className="nav-item">
                <a href="/shows" className="nav-link nounderline text-dark">{showsElem}</a>
+             </li>
+             <li className="nav-item">
+               <a href="/podcast" className="nav-link nounderline text-dark">{podcastElem}</a>
              </li>
              <li className="nav-item">
                <a href="https://twitter.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nav-link nounderline text-dark">{socialMediaElem}</a>

@@ -9,6 +9,7 @@ import banner from './website-header.jpg'
 import './App.css';
 
 import Home from './components/content/Home'
+import Podcast from './components/content/Podcast'
 import Shows from './components/content/Shows'
 import About from './components/content/About'
 
@@ -31,6 +32,7 @@ function App() {
               <div className="col-lg-7 m-3">
                 <Switch>
                   <Route exact path="/" component={Home}/>
+                  <Route exact path="/podcast" component={Podcast}/>
                   <Route exact path="/shows" component={Shows}/>
                   <Route exact path="/about" component={About}/>
                 </Switch>
