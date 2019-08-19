@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {getYouTubeVideos} from '../../actions/youtubeActions'
 
+import classNames from 'classnames'
+
 import pic1 from './images/Sidebar/RYS-all-Advertisement.jpg'
 import pic2 from './images/Sidebar/RYS-empty-Advertisement.jpg'
 import pic3 from './images/Sidebar/RYS-N-Advertisement.jpg'
@@ -9,6 +11,8 @@ import pic4 from './images/Sidebar/RYS-Z-Advertisement.jpg'
 import pic5 from './images/Sidebar/RYS-Q-Advertisement.jpg'
 import pic6 from './images/Sidebar/RYS-R-Advertisement.jpg'
 import pic7 from './images/Sidebar/RYS-C-Advertisement.jpg'
+
+import loadingSpinner from './images/Sidebar/kloader.gif'
 
 class Sidebar extends Component {
 
@@ -20,6 +24,11 @@ class Sidebar extends Component {
     const { recentVideos } = this.props
     const latestVideo = recentVideos ? recentVideos[0] : null
     const latestVideoId = latestVideo ? latestVideo.id : null
+    const latestVideoClasses = classNames({
+      "card-body": true,
+      "embed-responsive": latestVideo,
+      "embed-responsive-16by9": latestVideo
+    })
     return (
       <div className="container">
         <br />
@@ -35,10 +44,10 @@ class Sidebar extends Component {
           <div className="card-header text-center">
             <h4>LATEST VIDEO</h4>
           </div>
-          <div className="card-body embed-responsive embed-responsive-16by9">
+          <div className={latestVideoClasses}>
             {latestVideo ? 
               (<iframe className="embed-responsive-item" title={latestVideoId} src={'https://www.youtube.com/embed/' + latestVideoId} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>)
-              : null
+              : (<img className="d-block mx-auto" style={{width: "10%"}} src={loadingSpinner} alt="Loading Latest Video" />)
             }
           </div>
         </div>
