@@ -9,6 +9,8 @@ class Config(object):
     BLOGGER_PAGE_BLOG_ID=os.environ.get('BLOGGER_PAGE_BLOG_ID')
     SPOTIFY_CLIENT_ID=os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET=os.environ.get('SPOTIFY_CLIENT_SECRET')
+    PRINTFUL_STORE_ID=os.environ.get('PRINTFUL_STORE_ID')
+    PRINTFUL_API_KEY=  os.environ.get('PRINTFUL_API_KEY')
     PAYPAL_MODE=os.environ.get('PAYPAL_MODE') or 'live'
     PAYPAL_CLIENT_ID=os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET=os.environ.get('PAYPAL_CLIENT_SECRET')
