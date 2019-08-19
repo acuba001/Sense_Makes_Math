@@ -88,14 +88,33 @@ export default class Navbar extends Component {
     />
 
     return (
-      <div className="row">
-        <div className="col-lg-2 text-center my-3"><a href="/" className="nounderline text-dark nohover">{homeElem}</a></div>
-        <div className="col-lg-2 text-center my-3"><a href="/shows" className="nounderline text-dark">{showsElem}</a></div>
-        <div className="col-lg-2 text-center my-3"><a href="https://twitter.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{socialMediaElem}</a></div>
-        <div className="col-lg-2 text-center my-3"><a href="http://sensemakesmath.storenvy.com/" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{storeElem}</a></div>
-        <div className="col-lg-2 text-center my-3"><a href="https://www.patreon.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nounderline text-dark">{supportUsElem}</a></div>
-        <div className="col-lg-2 text-center my-3"><a href="/about" className="nounderline text-dark">{aboutElem}</a></div>
-      </div>
+      <nav className="navbar navbar-expand-lg navbar-light">
+        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarDropdownContent" aria-controls="navbarDropdownContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarDropdownContent">
+          <ul className="navbar-nav m-auto">
+          <li className="nav-item">
+               <a href="/" className="nav-link nounderline text-dark">{homeElem}</a>
+             </li>
+             <li className="nav-item">
+               <a href="/shows" className="nav-link nounderline text-dark">{showsElem}</a>
+             </li>
+             <li className="nav-item">
+               <a href="https://twitter.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nav-link nounderline text-dark">{socialMediaElem}</a>
+             </li>
+             <li className="nav-item">
+               <a href="http://sensemakesmath.storenvy.com/" target="_blank" rel="noopener noreferrer" className="nav-link nounderline text-dark">{storeElem}</a>
+             </li>
+             <li className="nav-item">
+               <a href="https://www.patreon.com/sensemakesmath" target="_blank" rel="noopener noreferrer" className="nav-link nounderline text-dark">{supportUsElem}</a>
+             </li>
+             <li className="nav-item">
+               <a href="/about" className="nav-link nounderline text-dark">{aboutElem}</a>
+             </li>
+          </ul>
+        </div>
+      </nav>
     )
   }
 }
