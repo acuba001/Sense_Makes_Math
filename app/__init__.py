@@ -288,3 +288,70 @@ app.register_blueprint(libraries_bp)
 #
 # --------------------------------------------------------
 
+# =============================================================================================================================================
+# Printful API
+#
+#
+#   SUB                   METHOD        URL                                         PARAMS                      RESPONSE
+# =============================================================================================================================================
+# Catalog               | GET       | ~/products                                  | NONE            |   { code: 200, result: Product[] }
+#                       | GET       | ~/products/variant/{ varId }                | varId           |   { code: 200, result: { var: Variant, prod: Product }}
+#                       | GET       | ~/products/{ prodId }                       | prodId          |   { code: 200, result: { prod: Product, var: Variant[] }}
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Products              | GET       | ~/store/products                            | status,         |   { code: 200, result: SyncProduct[], paging: Paging }
+#                       |           |                                             | offset,         | 
+#                       |           |                                             | limit           |
+#                       | POST      | ~/store/products                            | sync_product,   |   { code: 200, result: RequestProductResponse }  
+#                       |           |                                             | sync_variants   |  
+#                       | GET       | ~/store/products/{ sync_prodId }            | sync_prodId     |   { code: 200, result: { prod: SyncProduct, var: SyncVariant[] }} 
+#                       | DELETE    | ~/store/products/{ sync_prodId }            | sync_prodId     |   { code: 200, result: { prod: Product, var: Variant[] }}
+#                       | PUT       | ~/store/products/{ sync_prodId }            | sync_product    |   { code: 200, result: RequestProductResponse } 
+#                       |           |                                             | sync_variants   |
+#                       | POST      | ~/store/products/{ sync_prodId }/variants   | sync_prodId     |   { code: 200, result: RequestVariantResponse }
+#                       | GET       | ~/store/variants/{ sync_varId }             | sync_varId      |   { code: 200, result: { prod: SyncVariant, var: SyncProduct }}
+#                       | DELETE    | ~/store/variants/{ sync_varId }             | sync_varId      |   { code: 200, result: { prod: SyncVariant, var: SyncProduct }}
+#                       | PUT       | ~/store/variants/{ sync_varId }             | sync_varId      |   { code: 200, result: RequestVariantResponse }
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Orders                | GET       | ~/orders                                    | status,         |   { code: 200, result: Order[], paging: Paging }
+#                       |           |                                             | offset,         |   
+#                       |           |                                             | limit           | 
+#                       | POST      | ~/orders                                    | OrderInput,     |   { code: 200, result: Order } 
+#                       |           |                                             | confirm,        | 
+#                       |           |                                             | update_existing,|
+#                       | POST      | ~/orders/estimate-costs                     | OrderInput      |   { code: 200, result: OrderCosts }
+#                       | GET       | ~/orders/{ orderId }                        | orderId         |   { code: 200, result: Order}
+#                       | DELETE    | ~/orders/{ orderId }                        | orderId         |   { code: 200, result: Order} 
+#                       | PUT       | ~/orders/{ orderId }                        | orderId,        |   { code: 200, result: Order} 
+#                       |           |                                             | confirm,        |   
+#                       |           |                                             | OrderInput      |   
+#                       | POST      | ~/orders/{ orderId }/confirm                | orderId         |   { code: 200, result: Order} 
+# --------------------------------------------------------------------------------------------------------------------------------------------
+# File Library          | GET       | ~/files                                     | status,         |   { code: 200, result: File[], paging: Paging } 
+#                       |           |                                             | offset,         |   
+#                       |           |                                             | limit           | 
+#                       | POST      | ~/files                                     | File            |   { code: 200, result: File }
+#                       | GET       | ~/files/{ fileId }                          | fileId          |   { code: 200, result: File }
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Shipping Rate         | POST      | ~/shipping/rates                            | AddressInfo,    |   { code: 200, result: ShippingInfo[] }
+#                       |           |                                             | ItemInfo[],     |
+#                       |           |                                             | currency        |
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Country/State Code    | GET       | ~/countries                                 | None            |   { code: 200, result: Country[] }
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Tax Rate              | GET       | ~/tax/countries                             | None            |   { code: 200, result: Country[] }   
+#                       | POST      | ~/tax/rates                                 | TaxRequest      |   { code: 200, result: TaxInfo }   
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Webhook               |||
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Store Information     ||| 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Mockup Generator      ||| 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Warehouse Products    ||| 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Warehouse Shipments   ||| 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# E-comm Platform Sync  ||| 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
+# Webhook Simulator     ||| 
+# ---------------------------------------------------------------------------------------------------------------------------------------------
