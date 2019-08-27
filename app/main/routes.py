@@ -2,6 +2,7 @@ from app.main import bp
 from app.main.youtube import getAllYouTubeVideos
 from app.main.facebook import getFacebookPosts
 from app.main.blogger import getBloggerData
+from app.main.printful import getStockPrintfulCatalog
 from flask import current_app, render_template, jsonify, abort
 from flask_cors import cross_origin
 
@@ -34,3 +35,11 @@ def ytPosts():
 def blogPosts():
 	posts = getBloggerData()	
 	return jsonify({'posts': posts})
+    
+@bp.route('/store/catalog')
+@cross_origin()
+def stockPrintfulProducts():
+	posts = getStockPrintfulCatalog()	
+	return jsonify({'posts': posts})
+
+

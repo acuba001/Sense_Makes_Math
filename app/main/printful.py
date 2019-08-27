@@ -7,38 +7,47 @@ timeout = 60*app.config['PRINTFUL_DATA_FETCH_PER_DAY']/24
 
 
 # Please See: https://www.printful.com/docs/
- 
-def handleError(error, context):
-    if context:
-        err_message = "[LN {}] An error occured while executing {}.{}." 
-        + "Error thrown: {}".format(context.lineno, context.filename, context.function, error)
-        return {
-            'code': 404, 
-            'data': [], 
-            'error': {
-                'reason': None, 
-                'message': err_message 
-                }
-            }
+def formatErrorMessage(error, context):
+    ln = context.lineno
+    fn = context.filename
+    fnc = context.function
+    template = "[LN {}] An error occured while executing {}.{}. Error thrown: {}"
+    err_message = template.format(ln, fn, fnc, error)
+    return err_message if error != None else str(error)
 
-@cache.cached(timeout=timeout, key_prefix='getAllPrintfulData')
-def getAllPrintfulData(dataType):
-    dataType = dataType if dataType != None else "products"
-    ers = []
-    video_request_url = 'https://api.printful.com/{}'.format(dataType)
-    params = {
-        'Authorization': app.config['PRINTFUL_API_KEY']#,
-        # 'maxResults': app.config['PRINTFUL_DATA_MAXRESULTS']
-    }
+def formatResponse(response):
+    code = response["code"]
+    data =  [] if code != 200 else response["result"]
+    error = formatErrorMessage(response['result'], inspect.stack()[0]) if code != 200 else None
+    return {
+        'code': code, 
+        'data': data, 
+        'error': error
+        }
+
+def getPrintful(endpoint):
+
+    # Create url
+    url = 'https://api.printful.com/{}'.format(str(endpoint) or "products")
+
+    # Load params
+    params = { 'Authorization': app.config['PRINTFUL_API_KEY'] }
+
     try:
-        res = requests.get(video_request_url, params=params).json()
-        return {
-            'code': res['code'], 
-            'data': res['result'], 
-            'error': { 
-                'reason': res['error']['reason'] or None, 
-                'message': res['error']['message'] or None 
-                }
-            }
+        # Make call to 'Printful' api
+        res = requests.get(url, params=params).json()
+
+        # Return formated response
+        return formatResponse(res)
+
     except Exception as err:
-        return handleError(err, inspect.stack()[0])
+        print(formatErrorMessage(err, inspect.stack()[0]))
+
+@cache.cached(timeout=timeout, key_prefix='getStockPrintfulCatalog')
+def getStockPrintfulCatalog():
+    products = getPrintful("products")['data']
+    products_and_variants =  []
+    for product in products:
+        products_and_variants.append(getPrintful("products/{}".format(product['id']))['data'])
+    return products_and_variants
+
