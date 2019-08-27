@@ -24,7 +24,7 @@ function App() {
         <div className="bg-white">
           <img className="mx-auto mb-3 d-block img-fluid" src={banner} alt="" />
         </div>
-        <div className="container mx-auto p-3">
+        <div className="container mx-auto pb-3">
           <p className="text-center"><span className="font-weight-bold">Our Mission:</span> To expose the world to Beauty, Power, and Magic that is the sacred art of Mathematicians</p>
           <div className="bg-white">
             <Navbar/>
