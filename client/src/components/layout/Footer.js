@@ -5,7 +5,7 @@ export default class Footer extends Component {
     return (
       <div className="footer bg-light pb-4">
         <div className="container text-center">
-          <p className="lead my-auto">© Sense Makes Math</p>
+          <p className="my-auto">© Sense Makes Math</p>
         </div>
       </div>
     )
