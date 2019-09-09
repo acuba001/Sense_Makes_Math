@@ -6,44 +6,28 @@ class Error(Exception):
     Attributes:
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, message = None, context = None):
-        self.message = None        
-        self.context = None
-        self.setContext(context)
-        self.setMessage(message)
-
+    def __init__(self, message, context = None):
+        self.message = message        
+        self.context = setContext(context)
 
     def setContext(self, context):
-        def isValidContext(context):
-            print('Not yet implemented')
-
-        if isValidContext(context):
+        if not context is None:
             self.context['timestamp'] = str(datetime.now or None)
             self.context['lineno'] = str(context.lineno or None)
             self.context['filename'] =str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
             self.context['function'] = str(context.function or None)
-        else:
-            raise AttributeError
-
         return self
 
-
-    def setMessage(self, template):
-        
-        def isValidTemplate(template):
-            return template.split("{}", -1).count("{}") is 4
-        
-        if isValidTemplate(template):
-           tmplt = template 
-        else:
-            tmplt  = "[{}, LN {}] An error occured while executing {}::{}. "
-        
-        self.message = tmplt.format(
+    def setMessage(self, message):
+        err_message = None
+        template = "[{} , LN {}] An error occured while executing {}::{}. "
+        err_message = template.format(
             self.context['timestamp'], 
             self.context['lineno'], 
             self.context['filename'], 
             self.context['function']
             )
+        self.response['error'] = err_message
         return self
 
 class BadUrlError(Error):
@@ -55,14 +39,12 @@ class BadUrlError(Error):
         message -- explanation of the error
         context -- the meta date of the function which made the server call
     """       
-    def __init__(self, url, message = None, context = None):
+    def __init__(self, url, message, context):
         self.url = url
-        self.message = message
-        if not context is None:
-            super().__init__(context)
+        super().__init__(message, context)
         
 
-class ApiError(Error):
+class ExternalServerError(Error):
     """
     Exception raised for errors returned when calling an external Api.
 
@@ -72,14 +54,12 @@ class ApiError(Error):
         message -- the error <message> from <api>
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, api, url, message = None, context = None):
+    def __init__(self, api, url, message, context):
         self.api = api
         self.url = url
-        self.message = message
-        if not context is None:
-            super().__init__(context)
+        super().__init__(message, context)
 
-class ServerError(Error):
+class InternalServerError(Error):
     """
     Raised when an operation attempts a state transition that's not allowed.
 
@@ -87,8 +67,6 @@ class ServerError(Error):
         message -- explanation of the error
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, message, context = None):
-        self.message = message
-        if not context is None:
-            super().__init__(context)
+    def __init__(self, message, context):
+        super().__init__(message, context)
         
