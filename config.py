@@ -14,10 +14,6 @@ class Config(object):
     # Google
     GOOGLE_API_KEY=os.environ.get('GOOGLE_API_KEY') 
 
-    # Facebook
-    FACEBOOK_APP_ID=os.environ.get('FACEBOOK_APP_ID')
-    FACEBOOK_API_VERSION=os.environ.get('FACEBOOK_API_VERSION')
-
     # PayPal
     PAYPAL_MODE=os.environ.get('PAYPAL_MODE') or 'live'
     PAYPAL_CLIENT_ID=os.environ.get('PAYPAL_CLIENT_ID')
@@ -40,10 +36,6 @@ class Config(object):
 
     # Blogger
     BLOGGER_DATA_FETCH_PER_DAY=int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY') or 15)
-
-    # Facebook
-    FACEBOOK_DATA_FETCH_PER_DAY=int(os.environ.get('FACEBOOK_DATA_FETCH_PER_DAY') or 48)
-    FACEBOOK_DATA_MAXRESULTS=int(os.environ.get('FACEBOOK_DATA_MAXRESULTS') or 10)
 
     # Printful
     PRINTFUL_DATA_FETCH_PER_DAY=int(os.environ.get('PRINTFUL_DATA_FETCH_PER_DAY') or 48)

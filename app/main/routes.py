@@ -1,6 +1,5 @@
 from app.main import bp
 from app.main.youtube import getAllYouTubeVideos
-from app.main.facebook import getFacebookPosts
 from app.main.blogger import getBloggerData
 from app.main.printful import getStockPrintfulCatalogWithVariants
 from flask import current_app, render_template, jsonify, abort
@@ -13,17 +12,9 @@ def index():
     return render_template(
         'index.html', 
         videos=getAllYouTubeVideos(), 
-        channelID=current_app.config['YOUTUBE_CHANNEL_ID'],
-        fbAppId=current_app.config['FACEBOOK_APP_ID'],
-        fbAppVer=current_app.config['FACEBOOK_API_VERSION']
+        channelID=current_app.config['YOUTUBE_CHANNEL_ID']
     )
 
-@bp.route('/fb-posts')
-@cross_origin()
-def fbPosts():
-    posts = getFacebookPosts()
-    return jsonify({'posts': posts})
- 
 @bp.route('/yt-posts')
 @cross_origin()
 def ytPosts():
