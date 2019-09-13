@@ -1,4 +1,5 @@
 import re
+from app.errors.error_types import BadUrlError, ExternalServerError, InternalServerError
 
 def strip_html(raw_html):
     re.purge()
@@ -19,85 +20,67 @@ def strip_html(raw_html):
 
 class myResponse():
     """Work in Progress"""
-    def __init__(self, context = None):
-        self.response = {
+    def __init__(self, source = None):
+        self.source = source or ""
+        self.content = {
             'code': None,
             'data': None,
             'error': {
                 'reason': None,
                 'message': None
+            },
+            'paging': {
+                'total': 0,
+                'offset': 0,
+                'limit': 0
             }
         }
-        self.paging = {
-            'total': 0,
-            'offset': 0,
-            'limit': 0
-        }
 
-    def config(self, response, source = 'printful'):
-        res_code = response["code"]
-        if source is 'printful':
-            if res_code in [200]:
-                res_data = response['result']
-                res_error = None
-                res_paging = response['paging'] or None
-            else:
-                res_data = None
-                res_error = self.configureErrorMessage(response['error'])
-                res_paging = None
-        elif source is 'youtube':
-            if res_code in [200]:
-                res_data = response['items']
-                res_error = None
-                res_paging = response['paging'] or None
-            else:
-                res_data = None
-                res_error = self.configureErrorMessage(response['error'])
-                res_paging = None
+    def config(self, response):
+        isValid = type(response) is type({})
+        if isValid:
+            self.content['code'] = response['code'] or None
+            self.content['data'] = response['results'] or []
+            self.content['error']['reason'] = response['error']['reason'] or 'Server Error'
+            self.content['error']['message'] = response['error']['message'] or ''
+            self.content['paging']['total'] = response['paging']['total'] or 0
+            self.content['paging']['offset'] = response['paging']['offset'] or 0
+            self.content['paging']['limit'] = response['paging']['limit'] or 0
 
-        res_object = {
-            'code': res_code,
-            'data': res_data,
-            'error': res_error,
-            'paging': res_paging
-        }
-        print(res_object)
-        self.response = res_object
 
-def formatErrorMessage(error, context):
-    """Current Version"""
-    err_message = None
-    context = context
-    if context:
-        ln = str(context.lineno or None)
-        fn = str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
-        fnc = str(context.function or None)
-        template = "[{} , LN {}] An error occured while executing {}::{}. "
-        err_message = template.format(ln, fn, fnc, error)
-    else:
-        template = "Sorry, something went wrong! Please trya gain later. Error Thrown: {}"
-        err_message = template.format(error)
+# def formatErrorMessage(error, context):
+#     """Current Version"""
+#     err_message = None
+#     if context:
+#         ln = str(context.lineno or None)
+#         fn = str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
+#         fnc = str(context.function or None)
+#         template = "[{} , LN {}] An error occured while executing {}::{}. "
+#         err_message = template.format(ln, fn, fnc, error)
+#     else:
+#         template = "Sorry, something went wrong! Please trya gain later. Error Thrown: {}"
+#         err_message = template.format(error)
     
-    return err_message if error != None else str(error)
+#     return err_message if error != None else str(error)
 
 
-def formatResponse(response, context):
-    res_code = response["code"]
-    if res_code != 200:
-        res_data = []
-        res_error = formatErrorMessage(response['result'], context)
-        res_paging = str(None)
-    else:
-        res_data =response["result"]
-        # print(res_data[0])
-        res_error = str(None)
-        res_paging = response["paging"] if response["paging"] else str(None)
-        print(res_paging)
-    res_object = {
-        'code': res_code,
-        'data': res_data,
-        'error': res_error,
-        'paging': res_paging
-    }
-    print(res_object)
-    return res_object
+# def formatResponse(response, context):
+#     res_code = response["code"]
+#     if res_code != 200:
+#         res_data = []
+#         res_error = formatErrorMessage(response['result'], context)
+#         res_paging = str(None)
+#     else:
+#         res_data =response["result"]
+#         # print(res_data[0])
+#         res_error = str(None)
+#         res_paging = response["paging"] if response["paging"] else str(None)
+#         print(res_paging)
+#     res_object = {
+#         'code': res_code,
+#         'data': res_data,
+#         'error': res_error,
+#         'paging': res_paging
+#     }
+#     print(res_object)
+#     return res_object
