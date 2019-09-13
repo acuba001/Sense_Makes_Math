@@ -5,8 +5,45 @@ class Error(Exception):
     Attributes:
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, context, *args, **kwargs):
-        self.context = context
+    def __init__(self, message = None, context = None):
+        self.message = None        
+        self.context = None
+        self.setContext(context)
+        self.setMessage(message)
+
+
+    def setContext(self, context):
+        def isValidContext(context):
+            print('Not yet implemented')
+
+        if isValidContext(context):
+            self.context['timestamp'] = str(datetime.now or None)
+            self.context['lineno'] = str(context.lineno or None)
+            self.context['filename'] =str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
+            self.context['function'] = str(context.function or None)
+        else:
+            raise AttributeError
+
+        return self
+
+
+    def setMessage(self, template):
+        
+        def isValidTemplate(template):
+            return template.split("{}", -1).count("{}") is 4
+        
+        if isValidTemplate(template):
+           tmplt = template 
+        else:
+            tmplt  = "[{}, LN {}] An error occured while executing {}::{}. "
+        
+        self.message = tmplt.format(
+            self.context['timestamp'], 
+            self.context['lineno'], 
+            self.context['filename'], 
+            self.context['function']
+            )
+        return self
 
 class BadUrlError(Error):
     """
@@ -16,9 +53,8 @@ class BadUrlError(Error):
             url -- the path which threw the error
         message -- explanation of the error
         context -- the meta date of the function which made the server call
-    """
-        
-    def __init__(self, url, message, context = None):
+    """       
+    def __init__(self, url, message = None, context = None):
         self.url = url
         self.message = message
         if not context is None:
@@ -35,7 +71,7 @@ class ApiError(Error):
         message -- the error <message> from <api>
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, api, url, message, context = None):
+    def __init__(self, api, url, message = None, context = None):
         self.api = api
         self.url = url
         self.message = message
