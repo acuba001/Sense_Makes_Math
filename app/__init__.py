@@ -2,6 +2,7 @@ from flask import Flask
 from config import Config
 from flask_bootstrap import Bootstrap
 from flask_caching import Cache
+from flask_restful import Resource, Api
 
 app = Flask(__name__)
 
