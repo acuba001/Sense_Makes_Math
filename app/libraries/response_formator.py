@@ -20,8 +20,9 @@ def strip_html(raw_html):
 
 class myResponse():
     """Work in Progress"""
-    def __init__(self, source = None):
+    def __init__(self, source = None, res = None):
         self.source = source or ""
+        self.xRes = res
         self.content = {
             'code': None,
             'data': None,
@@ -37,30 +38,31 @@ class myResponse():
         }
 
     def config(self, response):
-        isValid = type(response) is type({})
+        isValid = type(response) is type({}) or response["error"] is None
+        isString = type(response["error"]) is type("")
         if isValid:
-            self.content['code'] = response['code'] or None
+            self.content['code'] = response['code'] or 404
             self.content['data'] = response['results'] or []
-            self.content['error']['reason'] = response['error']['reason'] or 'Server Error'
-            self.content['error']['message'] = response['error']['message'] or ''
-            self.content['paging']['total'] = response['paging']['total'] or 0
-            self.content['paging']['offset'] = response['paging']['offset'] or 0
-            self.content['paging']['limit'] = response['paging']['limit'] or 0
-
+            if response['error']['reason']:
+                self.content['error']['reason'] = response['error']['reason']
+            elif response['error']['message']:
+                self.content['error']['message'] = response['error']['message']
+            elif isString:
+                self.content['error']['message'] = response['error']
+            else:
+                self.content['error'] = None
+        return self.content
+           
 
 # def formatErrorMessage(error, context):
 #     """Current Version"""
 #     err_message = None
-#     if context:
-#         ln = str(context.lineno or None)
-#         fn = str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
-#         fnc = str(context.function or None)
-#         template = "[{} , LN {}] An error occured while executing {}::{}. "
-#         err_message = template.format(ln, fn, fnc, error)
-#     else:
-#         template = "Sorry, something went wrong! Please trya gain later. Error Thrown: {}"
-#         err_message = template.format(error)
-    
+#     ln = str(context.lineno or None)
+#     fn = str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
+#     fnc = str(context.function or None)
+#     template = "[LN {}] An error occured while executing {}.{}. Error thrown: {}" if context else "Sorry, something went wrong! Please trya gain later. Error Thrown: {}"
+#     err_message = template.format(ln, fn, fnc, error) if context else template.format(error)
+
 #     return err_message if error != None else str(error)
 
 
