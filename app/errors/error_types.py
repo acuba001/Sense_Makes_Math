@@ -4,13 +4,19 @@ class Error(Exception):
     Base class for exceptions in this module.
 
     Attributes:
-        context -- the meta date of the function which made the server call
+        context -- the meta data of the function which made the server call
     """
-    def __init__(self, message, context = None):
-        self.message = message        
-        self.context = setContext(context)
+    def __init__(self, template = None, context = None):
+        self.message = self.setMessage(template)        
+        self.context = self.setContext(context)
 
-    def setContext(self, context):
+    def setContext(self, context = None):
+        """
+        Sets the context of the function which threw the 'error'
+
+        Attributes:
+            context -- the meta data of the function which made the server call
+        """
         if not context is None:
             self.context['timestamp'] = str(datetime.now or None)
             self.context['lineno'] = str(context.lineno or None)
@@ -18,16 +24,32 @@ class Error(Exception):
             self.context['function'] = str(context.function or None)
         return self
 
-    def setMessage(self, message):
+    def setMessage(self, template = None):
+        """
+        Sets the message of the function which threw the 'error' to 
+
+        Attributes:
+            template -- the template of the message to be set. 
+        """
         err_message = None
-        template = "[{} , LN {}] An error occured while executing {}::{}. "
-        err_message = template.format(
-            self.context['timestamp'], 
-            self.context['lineno'], 
-            self.context['filename'], 
-            self.context['function']
-            )
-        self.response['error'] = err_message
+
+        def isValidTemplate(template):
+            return template.count("{}") is 4 or template is None
+            
+        if isValidTemplate(template):
+            if template is None: 
+                template = "[{} , LN {}] An error occured while executing {}::{}. "
+
+            err_message = template.format(
+                self.context['timestamp'], 
+                self.context['lineno'], 
+                self.context['filename'], 
+                self.context['function']
+                )
+        else:
+            raise Exception
+        
+        self.message = err_message
         return self
 
 class BadUrlError(Error):
