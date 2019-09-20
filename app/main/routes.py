@@ -30,7 +30,7 @@ def blogPosts():
 @bp.route('/store/catalog')
 @cross_origin()
 def stockPrintfulProducts():
-	stock_catalog = getStockPrintfulCatalog(False)	
-	return jsonify({'catalog': stock_catalog})
+    catalog = getStockPrintfulCatalog(False)
+    return jsonify(catalog)
 
 
