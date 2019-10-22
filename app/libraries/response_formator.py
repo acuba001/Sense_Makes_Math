@@ -1,5 +1,5 @@
 import re
-from app.errors.error_types import BadUrlError, ExternalServerError, InternalServerError
+from app.errors import BadApiCallError, Error
 
 def strip_html(raw_html):
     re.purge()
