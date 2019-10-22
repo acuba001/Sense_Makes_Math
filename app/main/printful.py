@@ -3,53 +3,53 @@ import requests
 import inspect
 
 from app import app, cache
-from app.errors.error_types import BadUrlError, ExternalServerError, InternalServerError
+from app.errors import BadUrlError, InternalServerError
 from app.libraries import myResponse
 
 timeout = 60*app.config['PRINTFUL_DATA_FETCH_PER_DAY']/24
 
-# 
-
+#
 class PrintfulController(Resource):
     """
     Please See: https://www.printful.com/docs/ for 
     further details ont he Printful Api
     """
+    
     def __init__(self):
         self.base_url = 'https://api.printful.com/{}'
 
+    def isValid(self, endpoint):
+
+        valid_printful_resources = [
+            'products',
+            'store/products',
+            'orders',
+            'files',
+            'shipping/rates',
+            'countries',
+            'tax/countries',
+            'tax/rates'
+        ]
+        return endpoint in valid_printful_resources
+
     def get(self, endpoint):
-            
         context = inspect.stack()[0]
-        
-        def isValid(self, endpoint):
-            
-            valid_printful_resources = [
-                'products' ,
-                'store/products',
-                'orders',
-                'files',
-                'shipping/rates',
-                'countries',
-                'tax/countries',
-                'tax/rates'
-                ]
-            return endpoint in valid_printful_resources
-        
-        # [WIP] This current only works with base endpoints. 
+
+        # Create url
+        #
+        # [WIP] This current only works with base endpoints.
         # We need to expand the 'isValid' function to deal with
         # other cases
-        # 
+        #
         # if self.isValid(endpoint):
-        #     url = self.base_url.format(str(endpoint))
+        url = self.base_url.format(str(endpoint))
         # else:
         #     raise BadUrlError(url, None, context)
 
-        # Create url
-        url = self.base_url.format(str(endpoint))
-
         # Load params
-        params = {'Authorization': app.config['PRINTFUL_API_KEY']}
+        params = {
+            'Authorization': app.config['PRINTFUL_API_KEY']
+        }
 
         # Make call to 'Printful' api
         xRes = requests.get(url, params=params).json()
@@ -63,14 +63,16 @@ class PrintfulController(Resource):
     def post(self, Resource):
         pass
 
+
 @cache.cached(timeout=timeout, key_prefix='getStockPrintfulCatalog')
 def getStockPrintfulCatalog(WithVariants=True):
     """
-    
+
     """
     controller = PrintfulController()
     res = myResponse("printful")
     context = inspect.stack()[0]
+
     errors = []
     products = []
     products_with_variants = []
@@ -83,18 +85,10 @@ def getStockPrintfulCatalog(WithVariants=True):
                 product_api_url = "products/{}".format(product['id'])
                 product_with_variants = controller.get(product_api_url)
                 products_with_variants.append(product_with_variants)
-    except BadUrlError as err:
-        print(str(err))
-        errors.append(err)
-    except InternalServerError as err:
-        print(str(err))
-        errors.append(err)
-    except ExternalServerError as err:
-        print(str(err))
-        errors.append(err)
     except Exception as err:
-        print(str(err))
         errors.append(err)
+
+    print(str(errors))
 
     if len(errors) > 0:
         return res.config({'code': 404, 'results': None, 'error': errors[0]})
