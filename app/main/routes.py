@@ -1,5 +1,5 @@
 from app.main import bp
-from app.main.youtube import getAllYouTubeVideos
+from app.main.youtube import getAllYouTubeVideos, getLatestYouTubeVideo
 from app.main.blogger import getBloggerData
 from app.main.printful import getStockPrintfulCatalog
 from flask import current_app, render_template, jsonify, abort
@@ -20,7 +20,13 @@ def index():
 def ytPosts():
     posts = getAllYouTubeVideos()
     return jsonify({'posts': posts})
-    
+
+@bp.route('/yt-posts/latest')
+@cross_origin()
+def ytPostsLatest():
+    posts = getLatestYouTubeVideo()
+    return jsonify({'posts': posts})
+
 @bp.route('/blog-posts')
 @cross_origin()
 def blogPosts():
