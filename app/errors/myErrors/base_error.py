@@ -19,97 +19,53 @@ class Error(Exception):
         None      
 
     """
-    def __init__(self, template, context):
+    def __init__(self, template, context=None):
         def isValidContext(context):
-            isNotNone = not context is None
+            isNotNone = context is not None
+            print("Is Context Not None: "+str(isNotNone))
+
             isGoodType = type(context) is type({})
-            isNotEmpty = not context is {}
-            isValidLineNo = "lineno" in dir(context)
-            isValidFilename = "filename" in dir(context)
-            isValidFunction = "function" in dir(context)
-            return  isNotNone and isGoodType and isNotEmpty and isValidLineNo and isValidFilename and isValidFunction
+            print("Is Context Good Type: "+str(isGoodType))
+
+            isNotEmpty = context is not {}
+            print("Is Context Not Empty: "+str(isNotEmpty))
+
+            isValidFields = set(("lineno", "filename", "function")) <= set(dir(context))
+            print("Is Context Valid Fields: "+str(isValidFields))
+
+            return isNotNone and isGoodType and isNotEmpty# and isValidFields
 
         if isValidContext(context):
-            cntxt = {
+            self.context = {
                 'timestamp': datetime.now(),
-                'lineno': context.lineno or -1,
-                'filename': context.filename.rpartition("/")[2].rpartition(".")[0] or "Unknown",
-                'function': context.function or "some unknown function"
+                'lineno': context['lineno'],
+                'filename': context['filename'].rpartition("/")[2].rpartition(".")[0],
+                'function': context['function']
             }
         else:
-            cntxt = {
+            self.context = {
                 'timestamp': datetime.now(),
-                'lineno': -1,
-                'filename': self.__context__,
-                'function': self.__traceback__
+                'lineno': str(-1),
+                'filename': '<Unknown>',
+                'function': '<Unknown>'
             }
 
-        self.context = cntxt
-
+    
         if type(template) is type("") and template.count("{}") is 4:
-            message = template.format(
+            self.message = template.format(
                 self.context['timestamp'],
+                self.context['lineno'],
                 self.context['filename'],
-                self.context['function'],
+                self.context['function']
+            )
+        elif type(template) is type("") and template.count("{}") is 2:
+            self.message = template.format(
+                self.context['timestamp'],
                 self.context['lineno']
             )
-        elif type(template) is type(""):
-            message = template
+        else:
+            self.message = template
 
-        super(Exception, self).__init__(message)
+        super().__init__(self.message)
 
-
-# from datetime import datetime
-# class Error(Exception):
-#     """
-#     Base class for exceptions in this module.
-
-#     Attributes:
-#         context -- the meta data of the function which made the server call
-#     """
-#     def __init__(self, template = None, context = None):
-#         self.message = self.setMessage(template)        
-#         self.context = self.setContext(context)
-
-#     def setContext(self, context = None):
-#         """
-#         Sets the context of the function which threw the 'error'
-
-#         Attributes:
-#             context -- the meta data of the function which made the server call
-#         """
-#         if not context is None:
-#             self.context['timestamp'] = str(datetime.now or None)
-#             self.context['lineno'] = str(context.lineno or None)
-#             self.context['filename'] =str(context.filename.rpartition("/")[2].rpartition(".")[0] or None)
-#             self.context['function'] = str(context.function or None)
-#         return self
-
-#     def setMessage(self, template = None):
-#         """
-#         Sets the message of the function which threw the 'error' to 
-
-#         Attributes:
-#             template -- the template of the message to be set. 
-#         """
-#         err_message = None
-
-#         def isValidTemplate(template):
-#             return template.count("{}") is 4 or template is None
-            
-#         if isValidTemplate(template):
-#             if template is None: 
-#                 template = "[{} , LN {}] An error occured while executing {}::{}. "
-
-#             err_message = template.format(
-#                 self.context['timestamp'], 
-#                 self.context['lineno'], 
-#                 self.context['filename'], 
-#                 self.context['function']
-#                 )
-#         else:
-#             raise Exception
-        
-#         self.message = err_message
-#         return self
 

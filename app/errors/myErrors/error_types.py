@@ -78,7 +78,7 @@ class BadUrlError(Error):
         message -- explanation of the error
         context -- the meta date of the function which made the server call
     """    
-    def __init__(self, message, context, url):
+    def __init__(self, message, context=None, url=None):
         self.url = url
         if message is None: 
             message = "[{} {}] "+self.__class__+": {}("+url+") -- LN {}"
@@ -95,12 +95,14 @@ class BadApiCallError(Error):
         message -- the error <message> from <api>
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, message, context, url, api = None):
+    def __init__(self, message, context=None, api=None, url=None):
+        self.type = str(self.__class__).split(".").pop()
         self.api = str(api)
         self.url = str(url)
-        if message is None: 
-            message = "[{} {}] "+self.__class__+": "+api+".{}("+url+") -- LN {}"
-        super(Error, self).__init__(message, context)   
+        if message is None:
+            error_type = self.type.split(">")[0]
+            message = "[{} {}] "+error_type+": {}.{}("+self.url+")"
+        super().__init__(message, context)   
 
 class ArithmeticOperationError(Error):
     """
@@ -110,7 +112,7 @@ class ArithmeticOperationError(Error):
         message -- explanation of the error
         context -- the meta data of the function which made the server call
     """
-    def __init__(self, message, context, params = None):
+    def __init__(self, message, context=None, params=None):
         if message is None: 
             if params and set(("input_1", "input_2")) <= set(dir(params)):
                 self.params = params
@@ -128,7 +130,7 @@ class TypeMatchError(Error):
         message -- explanation of the error
         context -- the meta data of the function which made the server call
     """
-    def __init__ (self, message, context, params):
+    def __init__ (self, message, context=None, params=None):
         if message is None:
             if params and set(("input_1", "input_2")) <= set(dir(params)):
                 self.params = params
@@ -146,7 +148,7 @@ class InternalServerError(Error):
         message -- explanation of the error
         context -- the meta date of the function which made the server call
     """
-    def __init__(self, message, context):
+    def __init__(self, message=None, context=None):
         super().__init__(message, context)   
 
 
