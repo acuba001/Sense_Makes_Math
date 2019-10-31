@@ -58,7 +58,7 @@ class PrintfulController(Resource):
             # Return formated response
             return xRes["result"]
         else:
-            raise ExternalServerError("printful", url, None, context)
+            raise InternalServerError(None, context, "printful", url)
 
     def post(self, Resource):
         pass

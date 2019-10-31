@@ -247,6 +247,9 @@ class YouTube(XApiController):
 
 @cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideos')
 def getAllYouTubeVideos():
+    """
+    
+    """
     playlistResources = []
     allYouTubeVideoResources = []
     allYouTubePlaylistItems = []
@@ -296,4 +299,20 @@ def getAllYouTubeVideos():
 def getLatestYouTubeVideo():
     list_of_video_resources = getAllYouTubeVideos()
     return list_of_video_resources.pop()
+
+@cache.cached(timeout=timeout, key_prefix='getYouTubeVideosByPlaylist')
+def getYouTubeVideosByPlaylist():
+    allVideosByPlaylistBuckets = []
+    Options = {'parts':["id"]}
+    playlistResources = YouTube().get("playlists", "/", opts=Options)
+    # Grab all 'Youtube' playlistItemResources
+    for playlistResource in playlistResources:
+        Options = {'parts':["snippet"], 'playlistId': playlistResource["id"] }
+        playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
+        # To see what the response object looks like, 
+        # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
+        playlistResource["playlistItems"] = playlistItems_res['items']
+        allVideosByPlaylistBuckets.push(playlistResource)
+    
+    return allVideosByPlaylistBuckets
 
