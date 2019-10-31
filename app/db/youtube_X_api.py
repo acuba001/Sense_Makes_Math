@@ -1,8 +1,11 @@
+class YouTubeDatabase:
+    pass
+
 import requests
 import inspect
 import json
 
-from app import app, cache
+from app import app
 from app.errors import *
 from app.libraries import myResponse as myRes
 
@@ -88,10 +91,9 @@ class YouTube(XApiController):
         """
         This method will retrive a YouTube Resource
         
-        @params: 
-            "resource_name" <String> -- A valid YouTube Resource name string
+        @params: "resource_name" <String> -- A valid YouTube Resource name string
                  "endpoint" <String> -- A valid YouTube Resource endpoint string
-                     "opts" <Object> -- An Object containing both required and optional 
+                    "opts" <Object> -- An Object containing both required and optional 
                             parameters
         
             For Example, if 
@@ -190,7 +192,7 @@ class YouTube(XApiController):
         if self.isValidResourceName(resource_name):
             url = self.base_url+resource_name        
         else:
-            raise Error(None, inspect.stack()[0])
+            raise Error(None, inspect.stack()[0].code_context)
         #
         # step 2: Load The Endpoint
         if endpoint:
@@ -244,56 +246,3 @@ class YouTube(XApiController):
                 raise
             else:
                 raise Error("[{} {}] InternalServerError: "+str(err), inspect.stack()[0]) 
-
-@cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideos')
-def getAllYouTubeVideos():
-    playlistResources = []
-    allYouTubeVideoResources = []
-    allYouTubePlaylistItems = []
-    try:
-        # Grab all 'YouTube' playlistResources
-        Options = {'parts':['id']}#, 'player', 'snippet'
-        playlist_res = YouTube().get('playlists','/', opts=Options) or {}
-        # To see what the response object looks like, 
-        # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
-        for item in playlist_res['items']:
-            if item['kind'] == 'youtube#playlist':
-                playlistResources.append(item)
-
-
-        # Grab all 'Youtube' playlistItemResources
-        for playlistResource in playlistResources:
-            Options = {'parts':["snippet"], 'playlistId': playlistResource["id"]}
-            playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
-            # To see what the response object looks like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
-            for item in playlistItems_res['items']:
-                if item['snippet']['resourceId']['kind'] == 'youtube#video':
-                    item['playlistResource'] = playlistResource
-                    allYouTubePlaylistItems.append(item)
-
-
-        # Sort the list of 'playlistItemResources', chronologically, by the 'publishedAt' date     
-        allYouTubePlaylistItems_sorted = sorted(allYouTubePlaylistItems, key=lambda x: x["snippet"]["publishedAt"])
-
-
-        # Grab all 'YouTube' videoResources by 'videoId'
-        for playlistItem in allYouTubePlaylistItems_sorted:
-            Options = {'parts':["id"], 'id': playlistItem["snippet"]["resourceId"]["videoId"]}
-            resource = YouTube().get("videos", "/", opts=Options)['items'][0]
-            # To see what the response object looks like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
-            resource["playlistResource"] = playlistItem["playlistResource"]            
-            if resource not in allYouTubeVideoResources:
-                allYouTubeVideoResources.append(resource)
-
-    except Exception:
-            raise
-
-    return allYouTubeVideoResources
-
-@cache.cached(timeout=timeout, key_prefix='getLatestYouTubeVideo')
-def getLatestYouTubeVideo():
-    list_of_video_resources = getAllYouTubeVideos()
-    return list_of_video_resources.pop()
-
