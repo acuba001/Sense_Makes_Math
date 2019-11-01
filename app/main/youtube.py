@@ -303,16 +303,25 @@ def getLatestYouTubeVideo():
 @cache.cached(timeout=timeout, key_prefix='getYouTubeVideosByPlaylist')
 def getYouTubeVideosByPlaylist():
     allVideosByPlaylistBuckets = []
-    Options = {'parts':["id"]}
-    playlistResources = YouTube().get("playlists", "/", opts=Options)
-    # Grab all 'Youtube' playlistItemResources
-    for playlistResource in playlistResources:
-        Options = {'parts':["snippet"], 'playlistId': playlistResource["id"] }
+    # Grab all 'Youtube' playlistResources
+    Options = {'parts':["id"]}#, "snippet"
+    playlistResource_res = YouTube().get("playlists", "/", opts=Options)
+    # To see what the response object looks like, 
+    # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
+    for playlistResource in playlistResource_res["items"]:
+        Options = {'parts':["id", "snippet"], 'playlistId': playlistResource["id"] }
         playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
         # To see what the response object looks like, 
         # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
-        playlistResource["playlistItems"] = playlistItems_res['items']
-        allVideosByPlaylistBuckets.push(playlistResource)
+        playlistVideoIds = [item["snippet"]["resourceId"]["videoId"] for item in playlistItems_res['items']]
+        playlistResource["videoResources"] = []
+        for id in playlistVideoIds:
+            Options = {'parts':["id"], 'id': id}
+            resource = YouTube().get("videos", "/", opts=Options)['items'][0]
+            # To see what the response object looks like, 
+            # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
+            playlistResource["videoResources"].append(resource)
+        allVideosByPlaylistBuckets.append(playlistResource)
     
     return allVideosByPlaylistBuckets
 
