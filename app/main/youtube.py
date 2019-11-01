@@ -217,15 +217,15 @@ class YouTube(XApiController):
         }
         #
         # Step 2: Load a filter
-        if opts["chart"]:
+        if "chart" in opts.keys():
             params["chart"] = opts["chart"]
-        elif opts["id"] and not params["chart"]:
+        elif "id" in opts.keys():
             params["id"] = opts["id"]
-        elif opts["myRating"] and not params["id"] and not params["chart"]:
+        elif "myRating" in opts.keys():
             params["myRating"] = opts["myRating"]
-        elif opts["mine"] and not params["myRating"] and not params["id"] and not params["chart"]:
+        elif "mine" in opts.keys():
             params["mine"] = opts["mine"]
-        elif opts["playlistId"] and not opts["mine"] and not params["myRating"] and not params["id"] and not params["chart"]:
+        elif "playlistId" in opts.keys():
             params["minplaylistIde"] = opts["playlistId"]
         #
         # Step 3: Load Possible Optional Parameters
