@@ -8,14 +8,10 @@ class Config(object):
     # Blogger
     BLOGGER_PAGE_BLOG_ID=os.environ.get('BLOGGER_PAGE_BLOG_ID')
 
-    # Cache
-    CACHE_TYPE=os.environ.get('CACHE_TYPE') or 'simple'
-
     # Google
     GOOGLE_API_KEY=os.environ.get('GOOGLE_API_KEY') 
 
     # PayPal
-    PAYPAL_MODE=os.environ.get('PAYPAL_MODE') or 'live'
     PAYPAL_CLIENT_ID=os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET=os.environ.get('PAYPAL_CLIENT_SECRET')
 
@@ -33,6 +29,12 @@ class Config(object):
     #########################
     #   OPTIONAL SETTINGS   #
     #########################
+
+    # Cache
+    CACHE_TYPE=os.environ.get('CACHE_TYPE') or 'simple'
+    
+    # PayPal
+    PAYPAL_MODE=os.environ.get('PAYPAL_MODE') or 'live'
 
     # Blogger
     BLOGGER_DATA_FETCH_PER_DAY=int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY') or 15)

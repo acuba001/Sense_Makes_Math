@@ -54,9 +54,19 @@ class YouTube(XApiController):
     @staticmethod
     def isValidPart(part):
         valid_youtube_part =[
-            'id',
-            'player',
-            'snippet'
+            "contentDetails",
+            "fileDetails",
+            "id",
+            "liveStreamingDetails",
+            "localizations",
+            "player",
+            "processingDetails",
+            "recordingDetails",
+            "snippet",
+            "statistics",
+            "status",
+            "suggestions",
+            "topicDetails"
         ]
         return part in valid_youtube_part
     
@@ -206,7 +216,19 @@ class YouTube(XApiController):
             'part': 'id'
         }
         #
-        # Step 2: Load Possible Optional Parameters
+        # Step 2: Load a filter
+        if opts["chart"]:
+            params["chart"] = opts["chart"]
+        elif opts["id"] and not params["chart"]:
+            params["id"] = opts["id"]
+        elif opts["myRating"] and not params["id"] and not params["chart"]:
+            params["myRating"] = opts["myRating"]
+        elif opts["mine"] and not params["myRating"] and not params["id"] and not params["chart"]:
+            params["mine"] = opts["mine"]
+        elif opts["playlistId"] and not opts["mine"] and not params["myRating"] and not params["id"] and not params["chart"]:
+            params["minplaylistIde"] = opts["playlistId"]
+        #
+        # Step 3: Load Possible Optional Parameters
         for field in opts.keys():
             if field is 'parts':
                 for part in opts["parts"]:
@@ -214,10 +236,10 @@ class YouTube(XApiController):
                         if part == 'id':
                             continue
                         params['part'] += ", "+part
-            elif field is 'pageToken':
-                params['pageToken'] = opts["pageToken"]
-            elif field is 'publishedAfter':
-                params['publishedAfter'] = opts["publishedAfter"]
+            elif field is "pageToken":
+                params["pageToken"] = opts["pageToken"]
+            elif field is "publishedAfter":
+                params["publishedAfter"] = opts["publishedAfter"]
             elif field is 'publishedBefore':
                 params['publishedBefore'] = opts["publishedBefore"]
             elif field is 'regionCode':
@@ -228,11 +250,25 @@ class YouTube(XApiController):
                 params['videoId'] = opts["videoId"]
             elif field is 'id':
                 params['id'] = opts["id"]
+            elif field is 'hl':
+                params['hl'] = opts['hl']
+            elif field is 'maxHeight':
+                params['maxHeight'] = opts['maxHeight']
+            elif field is 'maxResults':
+                params['maxResults'] = opts['maxResults']
+            elif field is 'maxWidth':
+                params['maxWidth'] = opts['maxWidth']
+            elif field is 'onBehalfOfContentOwner':
+                params['onBehalfOfContentOwner'] = opts['onBehalfOfContentOwner']
+            elif field is 'onBehalfOfContentOwnerChannel':
+                params['onBehalfOfContentOwnerChannel'] = opts['onBehalfOfContentOwnerChannel']
+            elif field is 'videoCategoryId':
+                params['videoCategoryId'] = opts['videoCategoryId']
 
         # Make a call to the YouTubeData Api.V3 
         try:
             xRes = requests.get(url, params=params)
-            # To see what the response object looks like, 
+            # To see what a response object might look like, 
             # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource or 
             # in general: "https://developers.google.com/youtube/v3/docs/< valid#resource >"
             if xRes.ok:
@@ -303,25 +339,34 @@ def getLatestYouTubeVideo():
 @cache.cached(timeout=timeout, key_prefix='getYouTubeVideosByPlaylist')
 def getYouTubeVideosByPlaylist():
     allVideosByPlaylistBuckets = []
-    # Grab all 'Youtube' playlistResources
-    Options = {'parts':["id"]}#, "snippet"
-    playlistResource_res = YouTube().get("playlists", "/", opts=Options)
-    # To see what the response object looks like, 
-    # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
-    for playlistResource in playlistResource_res["items"]:
-        Options = {'parts':["id", "snippet"], 'playlistId': playlistResource["id"] }
-        playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
+    try:
+        # Grab all 'Youtube' playlistResources
+        Options = {'parts':["id", "snippet"]}#
+        playlistResource_res = YouTube().get("playlists", "/", opts=Options)
         # To see what the response object looks like, 
-        # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
-        playlistVideoIds = [item["snippet"]["resourceId"]["videoId"] for item in playlistItems_res['items']]
-        playlistResource["videoResources"] = []
-        for id in playlistVideoIds:
-            Options = {'parts':["id"], 'id': id}
-            resource = YouTube().get("videos", "/", opts=Options)['items'][0]
+        # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
+
+
+        for playlistResource in playlistResource_res["items"]:
+            
+            # For each 'playlistResource' grab its playlistItemResources
+            Options = {'parts':["id", "snippet"], 'playlistId': playlistResource["id"] }
+            playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
             # To see what the response object looks like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
-            playlistResource["videoResources"].append(resource)
-        allVideosByPlaylistBuckets.append(playlistResource)
+            # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
+            
+            playlistVideoIds = [item["snippet"]["resourceId"]["videoId"] for item in playlistItems_res['items']]
+            
+            playlistResource["videoResources"] = []
+            for id in playlistVideoIds:
+
+                Options = {'parts':["id"], 'id': id}
+                resource = YouTube().get("videos", "/", opts=Options)['items'][0]
+                # To see what the response object looks like, 
+                # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
+                playlistResource["videoResources"].append(resource)
+            allVideosByPlaylistBuckets.append(playlistResource)
+    except Exception:
+        raise
     
     return allVideosByPlaylistBuckets
-
