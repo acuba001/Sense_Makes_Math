@@ -1,7 +1,7 @@
-import os
-from dotenv import load_dotenv
 
 import logging
+import os
+from dotenv import load_dotenv
 from logging.handlers import SMTPHandler, RotatingFileHandler
 # from logging.config import dictConfig
 
@@ -56,6 +56,8 @@ class Config(object):
     BLOGGER_DATA_FETCH_PER_DAY = int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY', 15))
     BLOGGER_PAGE_BLOG_ID = os.environ.get('BLOGGER_PAGE_BLOG_ID')
 
+    # ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+
     # Google
     GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
@@ -71,9 +73,16 @@ class Config(object):
     PRINTFUL_DATA_FETCH_PER_DAY = int(os.environ.get('PRINTFUL_DATA_FETCH_PER_DAY', 30))
     PRINTFUL_DATA_MAXRESULTS = int(os.environ.get('PRINTFUL_DATA_MAXRESULTS', 100))
 
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    # SSL_REDIRECT = False
+
     # Spotify
     SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
+
+    # SQLAlchemy
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_RECORD_QUERIES = True
 
     # YouTube
     YOUTUBE_DATA_FETCH_PER_DAY = int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY', 48))
