@@ -1,6 +1,7 @@
 import os
 import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
+from logging.handlers import RotatingFileHandler, SMTPHandler
+
 from dotenv import load_dotenv
 # from logging.config import dictConfig
 

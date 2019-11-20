@@ -6,23 +6,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 import logging
+
 # from flask_moment import Moment
 # from flask_babel import Babel, lazy_gettext as _l
 # from flask_pagedown import PageDown
 # import os
-# import rq
 from datetime import datetime as dt
 # from elasticsearch import Elasticsearch
 # from redis import Redis
 from config import config
-
-
-cache = Cache()
 db = SQLAlchemy()
-login = LoginManager()
+cache = Cache()
 mail = Mail()
 bootstrap = Bootstrap()
 migrate = Migrate()
+login = LoginManager()
 # login.login_view = 'auth.login'
 # login.login_message = 'Please log in to access this page.'
 # moment = Moment()
