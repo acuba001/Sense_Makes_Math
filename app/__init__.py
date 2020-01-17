@@ -8,7 +8,7 @@ from flask_bootstrap import Bootstrap
 # from flask_moment import Moment
 # from flask_babel import Babel, lazy_gettext as _l
 # from flask_pagedown import PageDown
-
+import logging
 # import os
 # import rq
 from datetime import datetime as dt
@@ -77,95 +77,27 @@ def create_app(config_name=None):
     with app.app_context():
         @app.before_request
         def before_request(request):
-# ======================================================
-# [NOTE] In app.<component>.init.py...
-# 
-# Components are captured in a Blueprint and 
-# are usable throughout the app. For example,  errors, 
-# libraries, main.
-#
-#   Example 2
-# ======================================================
-# from flask import Blueprint
-# 
-# simple_page = Blueprint('simple_page', __name__,
-#                         template_folder='templates')
-#
-# -------------------------------------------------------
+            # [TODO] validate request (JWT?)
             return request
 
         @app.after_request
         def after_request(response):
             """ Logging after every request. """
+            app.logger.info(
+                "%s [%s] %s %s %s %s %s %s %s",
+                request.remote_addr,
+                dt.utcnow().strftime("%d/%b/%Y:%H:%M:%S.%f")[:-3],
+                request.method,
+                request.path,
+                request.scheme,
+                response.status,
+                response.content_length,
+                request.referrer,
+                request.user_agent)
             return response
 
         register_blueprints(app)
 
-# =============================================================================================================================================
-# Printful API
-#
-#
-#   SUB                   METHOD        URL                                         PARAMS                      RESPONSE
-# =============================================================================================================================================
-# Catalog               | GET       | ~/products                                  | NONE            |   { code: 200, result: Product[] }
-#                       | GET       | ~/products/variant/{ varId }                | varId           |   { code: 200, result: { var: Variant, prod: Product }}
-#                       | GET       | ~/products/{ prodId }                       | prodId          |   { code: 200, result: { prod: Product, var: Variant[] }}
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Products              | GET       | ~/store/products                            | status,         |   { code: 200, result: SyncProduct[], paging: Paging }
-#                       |           |                                             | offset,         | 
-#                       |           |                                             | limit           |
-#                       | POST      | ~/store/products                            | sync_product,   |   { code: 200, result: RequestProductResponse }  
-#                       |           |                                             | sync_variants   |  
-#                       | GET       | ~/store/products/{ sync_prodId }            | sync_prodId     |   { code: 200, result: { prod: SyncProduct, var: SyncVariant[] }} 
-#                       | DELETE    | ~/store/products/{ sync_prodId }            | sync_prodId     |   { code: 200, result: { prod: Product, var: Variant[] }}
-#                       | PUT       | ~/store/products/{ sync_prodId }            | sync_product    |   { code: 200, result: RequestProductResponse } 
-#                       |           |                                             | sync_variants   |
-#                       | POST      | ~/store/products/{ sync_prodId }/variants   | sync_prodId     |   { code: 200, result: RequestVariantResponse }
-#                       | GET       | ~/store/variants/{ sync_varId }             | sync_varId      |   { code: 200, result: { prod: SyncVariant, var: SyncProduct }}
-#                       | DELETE    | ~/store/variants/{ sync_varId }             | sync_varId      |   { code: 200, result: { prod: SyncVariant, var: SyncProduct }}
-#                       | PUT       | ~/store/variants/{ sync_varId }             | sync_varId      |   { code: 200, result: RequestVariantResponse }
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Orders                | GET       | ~/orders                                    | status,         |   { code: 200, result: Order[], paging: Paging }
-#                       |           |                                             | offset,         |   
-#                       |           |                                             | limit           | 
-#                       | POST      | ~/orders                                    | OrderInput,     |   { code: 200, result: Order } 
-#                       |           |                                             | confirm,        | 
-#                       |           |                                             | update_existing,|
-#                       | POST      | ~/orders/estimate-costs                     | OrderInput      |   { code: 200, result: OrderCosts }
-#                       | GET       | ~/orders/{ orderId }                        | orderId         |   { code: 200, result: Order}
-#                       | DELETE    | ~/orders/{ orderId }                        | orderId         |   { code: 200, result: Order} 
-#                       | PUT       | ~/orders/{ orderId }                        | orderId,        |   { code: 200, result: Order} 
-#                       |           |                                             | confirm,        |   
-#                       |           |                                             | OrderInput      |   
-#                       | POST      | ~/orders/{ orderId }/confirm                | orderId         |   { code: 200, result: Order} 
-# --------------------------------------------------------------------------------------------------------------------------------------------
-# File Library          | GET       | ~/files                                     | status,         |   { code: 200, result: File[], paging: Paging } 
-#                       |           |                                             | offset,         |   
-#                       |           |                                             | limit           | 
-#                       | POST      | ~/files                                     | File            |   { code: 200, result: File }
-#                       | GET       | ~/files/{ fileId }                          | fileId          |   { code: 200, result: File }
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Shipping Rate         | POST      | ~/shipping/rates                            | AddressInfo,    |   { code: 200, result: ShippingInfo[] }
-#                       |           |                                             | ItemInfo[],     |
-#                       |           |                                             | currency        |
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Country/State Code    | GET       | ~/countries                                 | None            |   { code: 200, result: Country[] }
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Tax Rate              | GET       | ~/tax/countries                             | None            |   { code: 200, result: Country[] }   
-#                       | POST      | ~/tax/rates                                 | TaxRequest      |   { code: 200, result: TaxInfo }   
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Webhook               |||
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Store Information     ||| 
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Mockup Generator      ||| 
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Warehouse Products    ||| 
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Warehouse Shipments   ||| 
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# E-comm Platform Sync  ||| 
-# ---------------------------------------------------------------------------------------------------------------------------------------------
-# Webhook Simulator     ||| 
-# ---------------------------------------------------------------------------------------------------------------------------------------------
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('Starting UP: Sense Makes Math')
         return app

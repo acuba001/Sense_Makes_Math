@@ -1,5 +1,5 @@
 from flask import Blueprint
-bp = Blueprint('errors', __name__)
+errors_bp = Blueprint('errors', __name__)
 
 from .base_error import Error
 from .url_error import BadUrlError
