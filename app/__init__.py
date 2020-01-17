@@ -75,10 +75,10 @@ def create_app(config_name=None):
 
     with app.app_context():
 
-        @app.before_request
-        def before_request(request):
-            # [TODO] validate request (JWT?)
-            return request
+        # @app.before_request
+        # def before_request(request):
+        #     # [TODO] validate request (JWT?)
+        #     return request
 
         @app.after_request
         def after_request(response):
