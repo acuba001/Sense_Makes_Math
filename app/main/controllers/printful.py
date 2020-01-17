@@ -1,14 +1,14 @@
 from flask_restful import Resource
 import requests
 import inspect
-
-from app import app, cache
-from app.errors import BadUrlError, InternalServerError
+from flask import current_app
+from app import cache
+from app.errors import InternalServerError
 from app.libraries import myResponse
 
-timeout = 60*app.config['PRINTFUL_DATA_FETCH_PER_DAY']/24
+timeout = 60 * current_app.config['PRINTFUL_DATA_FETCH_PER_DAY'] / 24
 
-#
+
 class PrintfulController(Resource):
     """
     Please See: https://www.printful.com/docs/ for
@@ -48,7 +48,7 @@ class PrintfulController(Resource):
 
         # Load params
         params = {
-            'Authorization': app.config['PRINTFUL_API_KEY']
+            'Authorization': current_app.config['PRINTFUL_API_KEY']
         }
 
         # Make call to 'Printful' api

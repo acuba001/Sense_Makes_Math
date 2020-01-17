@@ -1,8 +1,8 @@
-from app.main import bp
-from app.main.youtube import getAllYouTubeVideos, getLatestYouTubeVideo, getYouTubeVideosByPlaylist
-from app.main.blogger import getBloggerData
-from app.main.printful import getStockPrintfulCatalog
-from flask import current_app, render_template, jsonify, abort
+from app.main import main_bp as bp
+from .controllers.youtube import getAllYouTubeVideos, getLatestYouTubeVideo, getYouTubeVideosByPlaylist
+from .controllers.blogger import getBloggerData
+from .controllers.printful import getStockPrintfulCatalog
+from flask import current_app, render_template, jsonify
 from flask_cors import cross_origin
 
 

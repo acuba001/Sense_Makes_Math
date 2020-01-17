@@ -1,5 +1,8 @@
-
+from flask import current_app, request
 from abc import ABC, abstractmethod
+import inspect
+
+from app.errors import Error, InternalServerError
 
 
 class XApiController(ABC):
@@ -47,7 +50,7 @@ class YouTube(XApiController):
 
     @staticmethod
     def isValidPart(part):
-        valid_youtube_part =[
+        valid_youtube_part = [
             "contentDetails",
             "fileDetails",
             "id",
@@ -192,7 +195,7 @@ class YouTube(XApiController):
         #
         # step 1: Basic Resource Url
         if self.isValidResourceName(resource_name):
-            url = self.base_url+resource_name
+            url = self.base_url + resource_name
         else:
             raise Error(None, inspect.stack()[0])
         #
@@ -204,9 +207,9 @@ class YouTube(XApiController):
         #
         # Step 1: Load Hidden Values
         params = {
-            'key': app.config['GOOGLE_API_KEY'],
-            'channelId': app.config['YOUTUBE_CHANNEL_ID'],
-            'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS'],
+            'key': current_app.config['GOOGLE_API_KEY'],
+            'channelId': current_app.config['YOUTUBE_CHANNEL_ID'],
+            'maxResults': current_app.config['YOUTUBE_DATA_MAXRESULTS'],
             'part': 'id'
         }
         #
@@ -224,7 +227,7 @@ class YouTube(XApiController):
         #
         # Step 3: Load Possible Optional Parameters
         for field in opts.keys():
-            if field is 'parts':
+            if field == 'parts':
                 for part in opts["parts"]:
                     if self.isValidPart(part):
                         if part == 'id':
@@ -261,7 +264,7 @@ class YouTube(XApiController):
 
         # Make a call to the YouTubeData Api.V3
         try:
-            xRes = requests.get(url, params=params)
+            xRes = request.get(url, params=params)
             # To see what a response object might look like,
             # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource or
             # in general: "https://developers.google.com/youtube/v3/docs/< valid#resource >"
@@ -275,8 +278,8 @@ class YouTube(XApiController):
             else:
                 raise Error("[{} {}] InternalServerError: "+str(err), inspect.stack()[0])
 
-#
-class PrintfulController(Resource):
+
+class PrintfulController(XApiController):
     """
     Please See: https://www.printful.com/docs/ for
     further details ont he Printful Api
@@ -315,11 +318,11 @@ class PrintfulController(Resource):
 
         # Load params
         params = {
-            'Authorization': app.config['PRINTFUL_API_KEY']
+            'Authorization': current_app.config['PRINTFUL_API_KEY']
         }
 
         # Make call to 'Printful' api
-        xRes = requests.get(url, params=params).json()
+        xRes = request.get(url, params=params).json()
 
         if xRes["code"] in [200]:
             # Return formated response

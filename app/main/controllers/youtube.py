@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
 from flask import current_app, request
 import inspect
-import json
+import requests
+from app import cache
+from app.errors import Error
+# from app.libraries import myResponse as myRes
 
-from app import app, cache
-from app.errors import *
-from app.libraries import myResponse as myRes
-
-timeout = 60*app.config['YOUTUBE_DATA_FETCH_PER_DAY']/24
-
-
+timeout = 60 * current_app.config['YOUTUBE_DATA_FETCH_PER_DAY'] / 24
 
 
 class XApiController(ABC):
@@ -57,7 +54,7 @@ class YouTube(XApiController):
 
     @staticmethod
     def isValidPart(part):
-        valid_youtube_part =[
+        valid_youtube_part = [
             "contentDetails",
             "fileDetails",
             "id",
@@ -202,7 +199,7 @@ class YouTube(XApiController):
         #
         # step 1: Basic Resource Url
         if self.isValidResourceName(resource_name):
-            url = self.base_url+resource_name
+            url = self.base_url + resource_name
         else:
             raise Error(None, inspect.stack()[0])
         #
@@ -214,9 +211,9 @@ class YouTube(XApiController):
         #
         # Step 1: Load Hidden Values
         params = {
-            'key': app.config['GOOGLE_API_KEY'],
-            'channelId': app.config['YOUTUBE_CHANNEL_ID'],
-            'maxResults': app.config['YOUTUBE_DATA_MAXRESULTS'],
+            'key': current_app.config['GOOGLE_API_KEY'],
+            'channelId': current_app.config['YOUTUBE_CHANNEL_ID'],
+            'maxResults': current_app.config['YOUTUBE_DATA_MAXRESULTS'],
             'part': 'id'
         }
         #
@@ -278,12 +275,10 @@ class YouTube(XApiController):
             if xRes.ok:
                 return xRes.json()
             else:
-                raise BadApiCallError("[{} LN {}] YouTubeError("+str(xRes.status_code)+"): " + xRes.message, inspect.stack()[0], 'YouTube', url)
+                raise Error("[{} LN {}] YouTubeError(" + str(xRes.status_code)+"): " + xRes.message, inspect.stack()[0], 'YouTube', url)
         except Exception as err:
-            if type(err) is type(BadApiCallError):
-                raise
-            else:
-                raise Error("[{} {}] InternalServerError: "+str(err), inspect.stack()[0])
+            raise Error("[{} {}] InternalServerError: " + str(err), inspect.stack()[0])
+
 
 @cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideos')
 def getAllYouTubeVideos():
@@ -295,18 +290,17 @@ def getAllYouTubeVideos():
     allYouTubePlaylistItems = []
     try:
         # Grab all 'YouTube' playlistResources
-        Options = {'parts':['id']}#, 'player', 'snippet'
-        playlist_res = YouTube().get('playlists','/', opts=Options) or {}
+        Options = {'parts': ['id']}  # , 'player', 'snippet'
+        playlist_res = YouTube().get('playlists', '/', opts=Options) or {}
         # To see what the response object looks like,
         # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
         for item in playlist_res['items']:
             if item['kind'] == 'youtube#playlist':
                 playlistResources.append(item)
 
-
         # Grab all 'Youtube' playlistItemResources
         for playlistResource in playlistResources:
-            Options = {'parts':["snippet"], 'playlistId': playlistResource["id"]}
+            Options = {'parts': ["snippet"], 'playlistId': playlistResource["id"]}
             playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
             # To see what the response object looks like,
             # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
@@ -315,14 +309,12 @@ def getAllYouTubeVideos():
                     item['playlistResource'] = playlistResource
                     allYouTubePlaylistItems.append(item)
 
-
         # Sort the list of 'playlistItemResources', chronologically, by the 'publishedAt' date
         allYouTubePlaylistItems_sorted = sorted(allYouTubePlaylistItems, key=lambda x: x["snippet"]["publishedAt"])
 
-
         # Grab all 'YouTube' videoResources by 'videoId'
         for playlistItem in allYouTubePlaylistItems_sorted:
-            Options = {'parts':["id"], 'id': playlistItem["snippet"]["resourceId"]["videoId"]}
+            Options = {'parts': ["id"], 'id': playlistItem["snippet"]["resourceId"]["videoId"]}
             resource = YouTube().get("videos", "/", opts=Options)['items'][0]
             # To see what the response object looks like,
             # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
@@ -331,30 +323,31 @@ def getAllYouTubeVideos():
                 allYouTubeVideoResources.append(resource)
 
     except Exception:
-            raise
+        raise
 
     return allYouTubeVideoResources
+
 
 @cache.cached(timeout=timeout, key_prefix='getLatestYouTubeVideo')
 def getLatestYouTubeVideo():
     list_of_video_resources = getAllYouTubeVideos()
     return list_of_video_resources.pop()
 
+
 @cache.cached(timeout=timeout, key_prefix='getYouTubeVideosByPlaylist')
 def getYouTubeVideosByPlaylist():
     allVideosByPlaylistBuckets = []
     try:
         # Grab all 'Youtube' playlistResources
-        Options = {'parts':["id", "snippet"]}#
+        Options = {'parts':["id", "snippet"]}  #
         playlistResource_res = YouTube().get("playlists", "/", opts=Options)
         # To see what the response object looks like,
         # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
 
-
         for playlistResource in playlistResource_res["items"]:
 
             # For each 'playlistResource' grab its playlistItemResources
-            Options = {'parts':["id", "snippet"], 'playlistId': playlistResource["id"] }
+            Options = {'parts': ["id", "snippet"], 'playlistId': playlistResource["id"] }
             playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
             # To see what the response object looks like,
             # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
@@ -364,7 +357,7 @@ def getYouTubeVideosByPlaylist():
             playlistResource["videoResources"] = []
             for id in playlistVideoIds:
 
-                Options = {'parts':["id"], 'id': id}
+                Options = {'parts': ["id"], 'id': id}
                 resource = YouTube().get("videos", "/", opts=Options)['items'][0]
                 # To see what the response object looks like,
                 # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
