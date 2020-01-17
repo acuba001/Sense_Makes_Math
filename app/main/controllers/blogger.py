@@ -1,7 +1,7 @@
 from app import app, cache
 from app.libraries import strip_html as strip
 
-import json
+# import json
 import requests
 
 timeout = 60*app.config['BLOGGER_DATA_FETCH_PER_DAY']/24

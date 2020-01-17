@@ -1,14 +1,7 @@
-import requests
-import inspect
-import json
-
-from app import app, cache
-from app.errors import *
-from app.libraries import myResponse as myRes
-
-timeout = 60*app.config['YOUTUBE_DATA_FETCH_PER_DAY']/24
 
 from abc import ABC, abstractmethod
+
+
 class XApiController(ABC):
 
     @property
@@ -24,18 +17,19 @@ class XApiController(ABC):
     @abstractmethod
     def get(self, endpoint):
         pass
-    
+
     # @abstractmethod
     # def post(self, endpoint):
     #     pass
-    
+
     # @abstractmethod
     # def put(self, endpoint):
     #     pass
-    
+
     # @abstractmethod
     # def delete(self, endpoint):
     #     pass
+
 
 class YouTube(XApiController):
     """
@@ -69,7 +63,7 @@ class YouTube(XApiController):
             "topicDetails"
         ]
         return part in valid_youtube_part
-    
+
     @staticmethod
     def isValidResourceName(endpoint):
         valid_youtube_resources = [
@@ -90,26 +84,26 @@ class YouTube(XApiController):
             'watermarks'
         ]
         return endpoint in valid_youtube_resources
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-           
+
     def get(self, resource_name, endpoint, opts):
         """
         This method will retrive a YouTube Resource
-        
-        @params: 
+
+        @params:
             "resource_name" <String> -- A valid YouTube Resource name string
                  "endpoint" <String> -- A valid YouTube Resource endpoint string
-                     "opts" <Object> -- An Object containing both required and optional 
+                     "opts" <Object> -- An Object containing both required and optional
                             parameters
-        
-            For Example, if 
+
+            For Example, if
 
                     "resource_name" = "playlist" and
                     "endpoint" = ''
                     opts.parts =['id', 'snippet'],
-        
+
             then a successfull call to
 
                     "https://www.googleapis.com/youtube/v3/<resource_name>/<endpoint>"
@@ -174,7 +168,7 @@ class YouTube(XApiController):
                             }
                         }
                     }.
-        
+
             An unsuccessful call would return somthing like:
 
                 "response" :  {
@@ -191,21 +185,21 @@ class YouTube(XApiController):
                     "code": 400,
                     "message": "No filter selected. Expected one of: home, channelId, mine"
                     }
-                }               
-                            
+                }
+
         """
         # Build the URL string
-        # 
+        #
         # step 1: Basic Resource Url
         if self.isValidResourceName(resource_name):
-            url = self.base_url+resource_name        
+            url = self.base_url+resource_name
         else:
             raise Error(None, inspect.stack()[0])
         #
         # step 2: Load The Endpoint
         if endpoint:
             url += endpoint
-        
+
         # Configure the request parameters
         #
         # Step 1: Load Hidden Values
@@ -265,11 +259,11 @@ class YouTube(XApiController):
             elif field is 'videoCategoryId':
                 params['videoCategoryId'] = opts['videoCategoryId']
 
-        # Make a call to the YouTubeData Api.V3 
+        # Make a call to the YouTubeData Api.V3
         try:
             xRes = requests.get(url, params=params)
-            # To see what a response object might look like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource or 
+            # To see what a response object might look like,
+            # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource or
             # in general: "https://developers.google.com/youtube/v3/docs/< valid#resource >"
             if xRes.ok:
                 return xRes.json()
@@ -279,94 +273,59 @@ class YouTube(XApiController):
             if type(err) is type(BadApiCallError):
                 raise
             else:
-                raise Error("[{} {}] InternalServerError: "+str(err), inspect.stack()[0]) 
+                raise Error("[{} {}] InternalServerError: "+str(err), inspect.stack()[0])
 
-@cache.cached(timeout=timeout, key_prefix='getAllYouTubeVideos')
-def getAllYouTubeVideos():
+#
+class PrintfulController(Resource):
     """
-    
+    Please See: https://www.printful.com/docs/ for
+    further details ont he Printful Api
     """
-    playlistResources = []
-    allYouTubeVideoResources = []
-    allYouTubePlaylistItems = []
-    try:
-        # Grab all 'YouTube' playlistResources
-        Options = {'parts':['id']}#, 'player', 'snippet'
-        playlist_res = YouTube().get('playlists','/', opts=Options) or {}
-        # To see what the response object looks like, 
-        # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
-        for item in playlist_res['items']:
-            if item['kind'] == 'youtube#playlist':
-                playlistResources.append(item)
 
+    def __init__(self):
+        self.base_url = 'https://api.printful.com/{}'
 
-        # Grab all 'Youtube' playlistItemResources
-        for playlistResource in playlistResources:
-            Options = {'parts':["snippet"], 'playlistId': playlistResource["id"]}
-            playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
-            # To see what the response object looks like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
-            for item in playlistItems_res['items']:
-                if item['snippet']['resourceId']['kind'] == 'youtube#video':
-                    item['playlistResource'] = playlistResource
-                    allYouTubePlaylistItems.append(item)
+    def isValid(self, endpoint):
 
+        valid_printful_resources = [
+            'products',
+            'store/products',
+            'orders',
+            'files',
+            'shipping/rates',
+            'countries',
+            'tax/countries',
+            'tax/rates'
+        ]
+        return endpoint in valid_printful_resources
 
-        # Sort the list of 'playlistItemResources', chronologically, by the 'publishedAt' date     
-        allYouTubePlaylistItems_sorted = sorted(allYouTubePlaylistItems, key=lambda x: x["snippet"]["publishedAt"])
+    def get(self, endpoint):
+        context = inspect.stack()[0]
 
+        # Create url
+        #
+        # [WIP] This current only works with base endpoints.
+        # We need to expand the 'isValid' function to deal with
+        # other cases
+        #
+        # if self.isValid(endpoint):
+        url = self.base_url.format(str(endpoint))
+        # else:
+        #     raise BadUrlError(url, None, context)
 
-        # Grab all 'YouTube' videoResources by 'videoId'
-        for playlistItem in allYouTubePlaylistItems_sorted:
-            Options = {'parts':["id"], 'id': playlistItem["snippet"]["resourceId"]["videoId"]}
-            resource = YouTube().get("videos", "/", opts=Options)['items'][0]
-            # To see what the response object looks like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
-            resource["playlistResource"] = playlistItem["playlistResource"]            
-            if resource not in allYouTubeVideoResources:
-                allYouTubeVideoResources.append(resource)
+        # Load params
+        params = {
+            'Authorization': app.config['PRINTFUL_API_KEY']
+        }
 
-    except Exception:
-            raise
+        # Make call to 'Printful' api
+        xRes = requests.get(url, params=params).json()
 
-    return allYouTubeVideoResources
+        if xRes["code"] in [200]:
+            # Return formated response
+            return xRes["result"]
+        else:
+            raise InternalServerError(None, context, "printful", url)
 
-@cache.cached(timeout=timeout, key_prefix='getLatestYouTubeVideo')
-def getLatestYouTubeVideo():
-    list_of_video_resources = getAllYouTubeVideos()
-    return list_of_video_resources.pop()
-
-@cache.cached(timeout=timeout, key_prefix='getYouTubeVideosByPlaylist')
-def getYouTubeVideosByPlaylist():
-    allVideosByPlaylistBuckets = []
-    try:
-        # Grab all 'Youtube' playlistResources
-        Options = {'parts':["id", "snippet"]}#
-        playlistResource_res = YouTube().get("playlists", "/", opts=Options)
-        # To see what the response object looks like, 
-        # please visit : https://developers.google.com/youtube/v3/docs/playlists#resource
-
-
-        for playlistResource in playlistResource_res["items"]:
-            
-            # For each 'playlistResource' grab its playlistItemResources
-            Options = {'parts':["id", "snippet"], 'playlistId': playlistResource["id"] }
-            playlistItems_res = YouTube().get("playlistItems", "/", opts=Options)
-            # To see what the response object looks like, 
-            # please visit : https://developers.google.com/youtube/v3/docs/playlistItems
-            
-            playlistVideoIds = [item["snippet"]["resourceId"]["videoId"] for item in playlistItems_res['items']]
-            
-            playlistResource["videoResources"] = []
-            for id in playlistVideoIds:
-
-                Options = {'parts':["id"], 'id': id}
-                resource = YouTube().get("videos", "/", opts=Options)['items'][0]
-                # To see what the response object looks like, 
-                # please visit : https://developers.google.com/youtube/v3/docs/videos#resource
-                playlistResource["videoResources"].append(resource)
-            allVideosByPlaylistBuckets.append(playlistResource)
-    except Exception:
-        raise
-    
-    return allVideosByPlaylistBuckets
+    def post(self, Resource):
+        pass
