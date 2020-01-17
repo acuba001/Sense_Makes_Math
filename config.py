@@ -1,15 +1,17 @@
 import os
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import SMTPHandler, RotatingFileHandler
 from dotenv import load_dotenv
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
-    @staticmethod
-    def init_app(app):
-        pass
+    DEVELOPMENT = False
+    TESTING = False
+    STAGING = False
+    DEBUG = False
 
     #########################
     #   REQUIRED SETTINGS   #
@@ -19,15 +21,15 @@ class Config(object):
     # Blogger
     BLOGGER_PAGE_BLOG_ID = os.environ.get('BLOGGER_PAGE_BLOG_ID')
 
-    # ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
     # Google
     GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
-    # # Mail
-    # MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    # MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    # MAIL_SENDER = os.environ.get('MAIL_SENDER')
+    # Mail
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_SENDER = os.environ.get('MAIL_SENDER')
 
     # PayPal
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
@@ -74,14 +76,18 @@ class Config(object):
     PRINTFUL_DATA_MAXRESULTS = int(os.environ.get('PRINTFUL_DATA_MAXRESULTS', 100))
 
     # SQLAlchemy
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')  # or \'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(basedir, 'app.db'))
 
     # YouTube
     YOUTUBE_DATA_FETCH_PER_DAY = int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY', 48))
     YOUTUBE_DATA_MAXRESULTS = int(os.environ.get('YOUTUBE_DATA_MAXRESULTS', 30))
 
     @staticmethod
-    def configure_stdout_logger(app):
+    def init_app(app):
+        pass
+
+    @staticmethod
+    def configure_stream_logger(app):
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.INFO)
         app.logger.addHandler(stream_handler)
@@ -92,7 +98,8 @@ class Config(object):
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler('logs/sense_makes_math.log', maxBytes=10240, backupCount=10)
-        file_handler_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+        file_handler_formatter = logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
         file_handler.setFormatter(file_handler_formatter)
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
@@ -101,7 +108,6 @@ class Config(object):
     # email errors to the administrators
     @classmethod
     def configure_mail_logger(cls, app):
-        from logging.handlers import SMTPHandler
         credentials = None
         secure = None
         if getattr(cls, 'MAIL_USERNAME', None) is not None:
@@ -122,36 +128,44 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
-    DEBUG = True
+
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'api', 'data-dev.sqlite')
 
     @classmethod
     def init_app(cls, app):
-        cls.configure_stdout_logger(app)
+        Config.init_app(app)
+        cls.configure_stream_logger(app)
 
 
 class TestingConfig(Config):
     TESTING = True
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite://'
+
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'api', 'data-dev.sqlite')
+
     WTF_CSRF_ENABLED = False
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
         cls.configure_file_logger(app)
-        cls.configure_stdout_logger(app)
+        cls.configure_stream_logger(app)
 
 
 class StagingConfig(Config):
-    pass
-    # DEVELOPMENT = False
-    # DEBUG = True
+    STAGING = True
+    DEVELOPMENT = False
+    DEBUG = True
+
+    @classmethod
+    def init_app(cls, app):
+        Config.init_app(app)
+        cls.configure_mail_logger(app)
 
 
 class ProductionConfig(Config):
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'api', 'data.sqlite')
 
     @classmethod
     def init_app(cls, app):
@@ -160,7 +174,7 @@ class ProductionConfig(Config):
 
 
 class HerokuConfig(ProductionConfig):
-    #     SSL_REDIRECT = True if os.environ.get('DYNO') else False
+    SSL_REDIRECT = True if os.environ.get('DYNO') else False
 
     @classmethod
     def init_app(cls, app):

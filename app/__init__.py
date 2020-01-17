@@ -1,10 +1,9 @@
 from flask import Flask, request
 from flask_caching import Cache
-from flask_sqlalchemy import SQLAlchemy
-# from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 # from flask_moment import Moment
 # from flask_babel import Babel, lazy_gettext as _l
 # from flask_pagedown import PageDown
@@ -14,16 +13,18 @@ import logging
 from datetime import datetime as dt
 # from elasticsearch import Elasticsearch
 # from redis import Redis
+from flask_bootstrap import Bootstrap
 from config import config
+
 
 cache = Cache()
 db = SQLAlchemy()
-# migrate = Migrate()
 mail = Mail()
 bootstrap = Bootstrap()
 login = LoginManager()
-login.login_view = 'auth.login'
+# login.login_view = 'auth.login'
 # login.login_message = _l('Please log in to access this page.')
+migrate = Migrate()
 # moment = Moment()
 # babel = Babel()
 # pagedown = PageDown()
@@ -32,10 +33,10 @@ login.login_view = 'auth.login'
 def register_extensions(app):
     cache.init_app(app=app, config={'CACHE_TYPE': app.config['CACHE_TYPE']})
     db.init_app(app)
-    # migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
     bootstrap.init_app(app)
+    migrate.init_app(app, db)
     # moment.init_app(app)
     # babel.init_app(app)
     # pagedown.init_app(app)
@@ -72,13 +73,12 @@ def create_app(config_name=None):
     config[config_name].init_app(app)
     app.config.from_object(config[config_name])
 
-    register_extensions(app)
-
     with app.app_context():
-        # @app.before_request
-        # def before_request():
-        #     # [TODO] validate request (JWT?)
-        #     return request
+
+        @app.before_request
+        def before_request(request):
+            # [TODO] validate request (JWT?)
+            return request
 
         @app.after_request
         def after_request(response):
@@ -96,6 +96,7 @@ def create_app(config_name=None):
                 request.user_agent)
             return response
 
+        register_extensions(app)
         register_blueprints(app)
 
         app.logger.setLevel(logging.INFO)
