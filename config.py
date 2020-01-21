@@ -1,7 +1,10 @@
 import os
+from dotenv import load_dotenv
+
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from dotenv import load_dotenv
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
@@ -13,74 +16,54 @@ class Config(object):
     STAGING = False
     DEBUG = False
 
-    #########################
-    #   REQUIRED SETTINGS   #
-    #########################
     ADMIN_CONTACT = os.environ.get('ADMIN_CONTACT')
-
-    # Blogger
-    BLOGGER_PAGE_BLOG_ID = os.environ.get('BLOGGER_PAGE_BLOG_ID')
-
+    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-
-    # Google
-    GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
     # Mail
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_SENDER = os.environ.get('MAIL_SENDER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'), base=10)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
+
+    # security
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SSL_REDIRECT = False
+
+    # SQLAlchemy
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(basedir, 'app.db'))
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_RECORD_QUERIES = True
+
+    # Blogger
+    BLOGGER_DATA_FETCH_PER_DAY = int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY', 15))
+    BLOGGER_PAGE_BLOG_ID = os.environ.get('BLOGGER_PAGE_BLOG_ID')
+
+    # Google
+    GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
     # PayPal
+    PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')
+    PAYPAL_SANDBOX_ACCOUNT = os.environ.get('PAYPAL_SANDBOX_ACCOUNT')
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
 
     # Printful
     PRINTFUL_STORE_ID = os.environ.get('PRINTFUL_STORE_ID')
     PRINTFUL_API_KEY = os.environ.get('PRINTFUL_API_KEY')
-
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    # SSL_REDIRECT = False
+    PRINTFUL_DATA_FETCH_PER_DAY = int(os.environ.get('PRINTFUL_DATA_FETCH_PER_DAY', 30))
+    PRINTFUL_DATA_MAXRESULTS = int(os.environ.get('PRINTFUL_DATA_MAXRESULTS', 100))
 
     # Spotify
     SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
 
-    # SQLAlchemy
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_RECORD_QUERIES = True
-
-    # YouTube
-    YOUTUBE_CHANNEL_ID = os.environ.get('YOUTUBE_CHANNEL_ID')
-
-    #########################
-    #   OPTIONAL SETTINGS   #
-    #########################
-
-    # Blogger
-    BLOGGER_DATA_FETCH_PER_DAY = int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY', 15))
-
-    # Cache
-    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')
-
-    # Mail
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'), base=10)
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
-
-    # PayPal
-    PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')
-
-    # Printful
-    PRINTFUL_DATA_FETCH_PER_DAY = int(os.environ.get('PRINTFUL_DATA_FETCH_PER_DAY', 30))
-    PRINTFUL_DATA_MAXRESULTS = int(os.environ.get('PRINTFUL_DATA_MAXRESULTS', 100))
-
-    # SQLAlchemy
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(basedir, 'app.db'))
-
     # YouTube
     YOUTUBE_DATA_FETCH_PER_DAY = int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY', 48))
     YOUTUBE_DATA_MAXRESULTS = int(os.environ.get('YOUTUBE_DATA_MAXRESULTS', 30))
+    YOUTUBE_CHANNEL_ID = os.environ.get('YOUTUBE_CHANNEL_ID')
 
     @staticmethod
     def init_app(app):
@@ -89,6 +72,9 @@ class Config(object):
     @staticmethod
     def configure_stream_logger(app):
         stream_handler = logging.StreamHandler()
+        stream_handler_formatter = logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+        stream_handler.setFormatter(stream_handler_formatter)
         stream_handler.setLevel(logging.INFO)
         app.logger.addHandler(stream_handler)
         return None
@@ -103,6 +89,7 @@ class Config(object):
         file_handler.setFormatter(file_handler_formatter)
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
+        app.logger.info('Starting Up Sense Makes Math')
         return None
 
     # email errors to the administrators
@@ -121,6 +108,9 @@ class Config(object):
             subject='Application Error',
             credentials=credentials,
             secure=secure)
+        mail_handler_formatter = logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+        mail_handler.setFormatter(mail_handler_formatter)
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
         return None
@@ -130,7 +120,7 @@ class DevelopmentConfig(Config):
     DEVELOPMENT = True
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'api', 'data-dev.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'db ', 'data-dev.sqlite')
 
     @classmethod
     def init_app(cls, app):
@@ -142,9 +132,10 @@ class TestingConfig(Config):
     TESTING = True
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'api', 'data-dev.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'db', 'data-dev.sqlite')
 
     WTF_CSRF_ENABLED = False
+
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
@@ -165,7 +156,7 @@ class StagingConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'api', 'data.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'db', 'data.sqlite')
 
     @classmethod
     def init_app(cls, app):
@@ -179,9 +170,10 @@ class HerokuConfig(ProductionConfig):
     @classmethod
     def init_app(cls, app):
         ProductionConfig.init_app(app)
-        # # handle reverse proxy server headers
-        # from werkzeug.contrib.fixers import ProxyFix
-        # app.wsgi_app = ProxyFix(app.wsgi_app)
+
+        # handle reverse proxy server headers
+        from werkzeug.contrib.fixers import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 config = {

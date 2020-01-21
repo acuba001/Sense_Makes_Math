@@ -4,27 +4,27 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap
+import logging
 # from flask_moment import Moment
 # from flask_babel import Babel, lazy_gettext as _l
 # from flask_pagedown import PageDown
-import logging
 # import os
 # import rq
 from datetime import datetime as dt
 # from elasticsearch import Elasticsearch
 # from redis import Redis
-from flask_bootstrap import Bootstrap
 from config import config
 
 
 cache = Cache()
 db = SQLAlchemy()
+login = LoginManager()
 mail = Mail()
 bootstrap = Bootstrap()
-login = LoginManager()
-# login.login_view = 'auth.login'
-# login.login_message = _l('Please log in to access this page.')
 migrate = Migrate()
+# login.login_view = 'auth.login'
+# login.login_message = 'Please log in to access this page.'
 # moment = Moment()
 # babel = Babel()
 # pagedown = PageDown()
@@ -46,9 +46,10 @@ def register_extensions(app):
     # app.redis = Redis.from_url(app.config['REDIS_URL'])
     # app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
 
-    # if app.config['SSL_REDIRECT']:
-    #     from flask_sslify import SSLify
-    #     sslify = SSLify(app)
+    if app.config['SSL_REDIRECT']:
+        from flask_sslify import SSLify
+        sslify = SSLify()
+        sslify.init_app(app)
     return None
 
 
@@ -76,9 +77,9 @@ def create_app(config_name=None):
     with app.app_context():
 
         # @app.before_request
-        # def before_request(request):
-        #     # [TODO] validate request (JWT?)
-        #     return request
+        # def before_request():
+        #     if 'logged_in' not in session and request.endpoint != 'login':
+        #         return redirect(url_for('login'))
 
         @app.after_request
         def after_request(response):
