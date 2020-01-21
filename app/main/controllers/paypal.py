@@ -1,17 +1,14 @@
-from app import app, cache
+from app import cache
 import paypalrestsdk
 
-import logging
-import requests
 import inspect
-import string
-import random
+from flask import current_app
+from . import sdk
 
-logging.basicConfig(level=logging.INFO)
 
 #############################################################################
 # Customize the Payment window with Website Content
-# 
+#
 #   see:https://github.com/paypal/PayPal-Python-SDK/blob/master/samples/payment_experience/web_profile/create_payment_with_customized_experience.py
 #############################################################################
 #
@@ -45,19 +42,19 @@ print(wpn)
 
 #############################################################################
 # Configure the PayPal SDK
-# 
+#
 #   see: https://github.com/paypal/PayPal-Python-SDK/blob/master/README.md
 #############################################################################
 paypalrestsdk.configure({
-  'mode': app.config['PAYPAL_MODE'],
-  'client_id': app.config['PAYPAL_CLIENT_ID'],
-  'client_secret': app.config['PAYPAL_CLIENT_SECRET']
+  'mode': current_app.config['PAYPAL_MODE'],
+  'client_id': current_app.config['PAYPAL_CLIENT_ID'],
+  'client_secret': current_app.config['PAYPAL_CLIENT_SECRET']
   })
 
 
 #############################################################################
-# Create A Payment 
-# 
+# Create A Payment
+#
 #
 #   Refer to https://developer.paypal.com/docs/integration/direct/explore-payment-capabilities/
 #   and to https://developer.paypal.com/docs/release-notes/#updates-for-13-august-2014 to explore
@@ -161,7 +158,7 @@ Invoice = paypalrestsdk.Payment({
 
 #############################################################################
 #                              Execute Payment
-# 
+#
 #   see: https://github.com/paypal/PayPal-Python-SDK/blob/master/README.md
 #############################################################################
 #
@@ -176,7 +173,7 @@ Invoice = paypalrestsdk.Payment({
 
 #############################################################################
 #                              Get Payment details
-# 
+#
 #   see: https://github.com/paypal/PayPal-Python-SDK/blob/master/README.md
 #############################################################################
 #
