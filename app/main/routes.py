@@ -1,5 +1,5 @@
 from app.main import main_bp as bp
-from .controllers.youtube import getAllYouTubeVideos, getLatestYouTubeVideo, getYouTubeVideosByPlaylist
+from .controllers.youtube import getAllVideos, getLatestVideo, getVideosByPlaylist
 from .controllers.blogger import getBloggerData
 from .controllers.printful import getStockPrintfulCatalog
 from flask import current_app, render_template, jsonify
@@ -12,7 +12,7 @@ from flask_cors import cross_origin
 def index():
     return render_template(
         'index.html',
-        videos=getAllYouTubeVideos(),
+        videos=getAllVideos(),
         channelID=current_app.config['YOUTUBE_CHANNEL_ID']
     )
 
@@ -20,21 +20,21 @@ def index():
 @bp.route('/yt-posts')
 @cross_origin()
 def ytPosts():
-    posts = getAllYouTubeVideos()
+    posts = getAllVideos()
     return jsonify({'posts': posts})
 
 
 @bp.route('/yt-posts/latest')
 @cross_origin()
 def ytPostsLatest():
-    posts = getLatestYouTubeVideo()
+    posts = getLatestVideo()
     return jsonify({'posts': posts})
 
 
 @bp.route('/yt-posts/playlist')
 @cross_origin()
 def ytPostsByPlaylist():
-    posts = getYouTubeVideosByPlaylist()
+    posts = getVideosByPlaylist()
     return jsonify({'posts': posts})
 
 
