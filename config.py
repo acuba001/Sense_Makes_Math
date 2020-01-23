@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
+path_to_db = os.path.join(basedir, 'app', 'db', "data-dev.sqlite")
 
 
 class Config(object):
@@ -48,7 +49,7 @@ class Config(object):
     SSL_REDIRECT = False
 
     # SQLAlchemy
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(basedir, 'app.db'))
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + path_to_db)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
 
@@ -74,15 +75,11 @@ class Config(object):
     PRINTFUL_DATA_MAXRESULTS = int(os.environ.get('PRINTFUL_DATA_MAXRESULTS', 100))
 
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    # SSL_REDIRECT = False
+    SSL_REDIRECT = False
 
     # Spotify
     SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
-
-    # SQLAlchemy
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_RECORD_QUERIES = True
 
     # YouTube
     YOUTUBE_DATA_FETCH_PER_DAY = int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY', 48))
@@ -105,15 +102,14 @@ class Config(object):
 
     @staticmethod
     def configure_file_logger(app):
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
+        if not os.path.exists('app/logs'):
+            os.mkdir('app/logs')
         file_handler = RotatingFileHandler('logs/sense_makes_math.log', maxBytes=10240, backupCount=10)
         file_handler_formatter = logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
         file_handler.setFormatter(file_handler_formatter)
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-        app.logger.info('Starting Up Sense Makes Math')
         return None
 
     # email errors to the administrators
@@ -144,7 +140,7 @@ class DevelopmentConfig(Config):
     DEVELOPMENT = True
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'db ', 'data-dev.sqlite')
+        'sqlite:///' + path_to_db
 
     @classmethod
     def init_app(cls, app):
@@ -155,8 +151,8 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'db', 'data-dev.sqlite')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
+        'sqlite:///' + path_to_db
 
     WTF_CSRF_ENABLED = False
 
@@ -180,7 +176,7 @@ class StagingConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'db', 'data.sqlite')
+        'sqlite:///' + path_to_db
 
     @classmethod
     def init_app(cls, app):

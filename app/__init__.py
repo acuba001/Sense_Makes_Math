@@ -14,6 +14,7 @@ import logging
 from datetime import datetime as dt
 # from elasticsearch import Elasticsearch
 # from redis import Redis
+
 from config import config
 db = SQLAlchemy()
 cache = Cache()
@@ -97,6 +98,8 @@ def create_app(config_name=None):
 
         register_extensions(app)
         register_blueprints(app)
+
+        db.create_all()
 
         app.logger.setLevel(logging.INFO)
         app.logger.info('Starting UP: Sense Makes Math')
