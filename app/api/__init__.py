@@ -1,5 +1,6 @@
 from flask import Blueprint
 
-bp = Blueprint('api', __name__)
+api_bp = Blueprint('api', __name__)
 
-from . import users, errors  # tokens
+from app.api.controllers import users
+from app.api.errors import errors as ApiErrors  # tokens

@@ -1,26 +1,10 @@
 from app.errors import errors_bp as bp
-from flask import render_template, request, jsonify
-from app import db
+from flask import request, jsonify
 
 
 def wants_json_response():
     return request.accept_mimetypes['application/json'] >= \
         request.accept_mimetypes['text/html']
-
-
-@bp.app_errorhandler(404)
-def not_found_error(error):
-    # if wants_json_response():
-    #     return api_error_response(404)
-    return render_template('errors/404.html'), 404
-
-
-@bp.app_errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    # if wants_json_response():
-    #     return api_error_response(500)
-    return render_template('errors/500.html'), 500
 
 
 @bp.app_errorhandler(400)
@@ -44,6 +28,6 @@ def forbidden(message):
     return response
 
 
-# @api.errorhandler(ValidationError)
-# def validation_error(e):
-#     return bad_request(e.args[0])
+@bp.errorhandler(407)
+def validation_error(e):
+    return bad_request(e.args[0])
