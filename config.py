@@ -23,7 +23,10 @@ from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
-path_to_db = os.path.join(basedir, 'app', 'db', "data-dev.sqlite")
+
+if not os.path.exists('.db'):
+    os.mkdir('.db')
+path_to_db = os.path.join(basedir, '.db', "data-main.sqlite")
 
 
 class Config(object):
@@ -102,9 +105,9 @@ class Config(object):
 
     @staticmethod
     def configure_file_logger(app):
-        if not os.path.exists('app/logs'):
-            os.mkdir('app/logs')
-        file_handler = RotatingFileHandler('logs/sense_makes_math.log', maxBytes=10240, backupCount=10)
+        if not os.path.exists('.logs'):
+            os.mkdir('.logs')
+        file_handler = RotatingFileHandler('.logs/sense_makes_math.log', maxBytes=10240, backupCount=10)
         file_handler_formatter = logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
         file_handler.setFormatter(file_handler_formatter)
@@ -139,8 +142,7 @@ class Config(object):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + path_to_db
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL', 'sqlite:///' + path_to_db)
 
     @classmethod
     def init_app(cls, app):
@@ -151,8 +153,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite:///' + path_to_db
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL', 'sqlite:///' + path_to_db)
 
     WTF_CSRF_ENABLED = False
 
@@ -168,15 +169,18 @@ class StagingConfig(Config):
     DEVELOPMENT = False
     DEBUG = True
 
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('STAGING_DATABASE_URL', 'sqlite:///' + path_to_db)
+
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
+        cls.configure_file_logger(app)
+        cls.configure_stream_logger(app)
         cls.configure_mail_logger(app)
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + path_to_db
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('PRODUCTION_DATABASE_URL', 'sqlite:///' + path_to_db)
 
     @classmethod
     def init_app(cls, app):

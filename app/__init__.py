@@ -75,6 +75,8 @@ def create_app(config_name=None):
 
     with app.app_context():
 
+        register_extensions(app)
+
         # @app.before_request
         # def before_request():
         #     if 'logged_in' not in session and request.endpoint != 'login':
@@ -96,11 +98,10 @@ def create_app(config_name=None):
                 request.user_agent)
             return response
 
-        register_extensions(app)
         register_blueprints(app)
 
         db.create_all()
 
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('Starting UP: Sense Makes Math')
+        # app.logger.setLevel(logging.INFO)
+        # app.logger.info('Starting UP: Sense Makes Math')
         return app

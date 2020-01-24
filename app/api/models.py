@@ -2,7 +2,7 @@ from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask import current_app, url_for
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 
 from app import db
 
@@ -51,9 +51,10 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
     confirmed = db.Column(db.Boolean, default=False)
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime)
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow())
+    # avatar_hash = db.Column(db.String(32))
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    avatar_hash = db.Column(db.String(32))
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -64,7 +65,6 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = self.gravatar_hash()
-        self.follow(self)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -80,16 +80,34 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    # def get_token(self, expires_in=3600):
+    #     now = datetime.utcnow()
+    #     if self.token and self.token_expiration > now + timedelta(seconds=60):
+    #         return self.token
+    #     self.token = base64.b64encode(os.urandom(24)).decode('utf-8')
+    #     self.token_expiration = now + timedelta(seconds=expires_in)
+    #     db.session.add(self)
+    #     return self.token
+
+    # def revoke_token(self):
+    #     self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
+
+    # @staticmethod
+    # def check_token(token):
+    #     user = User.query.filter_by(token=token).first()
+    #     if user is None or user.token_expiration < datetime.utcnow():
+    #         return None
+    #     return user
+
     def to_dict(self, include_email=False):
         data = {
             'id': self.id,
             'username': self.username,
             'last_seen': self.last_seen.isoformat() + 'Z',
-            'comment_count': self.comments.count(),
             '_links': {
                 'self': url_for('api.get_user', id=self.id),
                 'url': url_for('api.get_user', id=self.id),
-                'comments_url': url_for('api.get_user_comments', id=self.id),
+                'avatar': self.avatar(128)
             }
         }
         if include_email:
@@ -102,6 +120,15 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
                 setattr(self, field, data[field])
         if new_user and 'password' in data:
             self.set_password(data['password'])
+
+    # def gravatar_hash(self):
+    #     return md5(self.email.lower().encode('utf-8')).hexdigest()
+
+    # def gravatar(self, size=100, default='identicon', rating='g'):
+    #     url = 'https://secure.gravatar.com/avatar'
+    #     hash = self.avatar_hash or self.gravatar_hash()
+    #     return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
+    #         url=url, hash=hash, size=size, default=default, rating=rating)
 
     def can(self, perm):
         return self.role is not None and self.role.has_permission(perm)
@@ -165,3 +192,39 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role %r>' % self.name
+
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+
+    def is_administrator(self):
+        return False
+
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def to_dict(self):
+        json_comment = {
+            'url': url_for('api.get_comment', id=self.id),
+            'post_url': url_for('api.get_post', id=self.post_id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+        }
+        return json_comment
+
+    @staticmethod
+    def from_dict(json_comment):
+        body = json_comment.get('body')
+        if body is None or body == '':
+            raise Exception('comment does not have a body')
+        return Comment(body=body)

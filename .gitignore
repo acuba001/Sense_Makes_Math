@@ -8,7 +8,8 @@ client/.env
 sampleYoutubeOutput
 client/sampleYoutubeOutput
 *.py[cod]
-
+.db
+.logs
 # C extensions
 *.so
 
