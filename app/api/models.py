@@ -54,16 +54,15 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow())
     # avatar_hash = db.Column(db.String(32))
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
+            self.role = Role.query.filter_by(default=True).first()
             if self.email == current_app.config['ADMIN_CONTACT']:
                 self.role = Role.query.filter_by(name='Administrator').first()
-            if self.role is None:
-                self.role = Role.query.filter_by(default=True).first()
-        if self.email is not None and self.avatar_hash is None:
+        if self.email is not None:  # and self.avatar_hash is None:
             self.avatar_hash = self.gravatar_hash()
 
     def __repr__(self):

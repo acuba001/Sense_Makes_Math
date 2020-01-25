@@ -1,12 +1,19 @@
+import requests
 from flask import current_app
 
 from app import cache
+from app.libraries import Error, myResponse, strip_html as strip
 from .sdk import YouTube
+from . import sdk
 
-timeout = 60 * current_app.config['YOUTUBE_DATA_FETCH_PER_DAY'] / 24
+
+blog_timeout = 60 * current_app.config['BLOGGER_DATA_FETCH_PER_DAY'] / 24
+
+video_timeout = 60 * current_app.config['YOUTUBE_DATA_FETCH_PER_DAY'] / 24
+product_timeout = 60 * current_app.config['PRINTFUL_DATA_FETCH_PER_DAY'] / 24
 
 
-@cache.cached(timeout=timeout, key_prefix='getAllVideos')
+@cache.cached(timeout=video_timeout, key_prefix='getAllVideos')
 def getAllVideos():
     """
 
@@ -57,13 +64,13 @@ def getAllVideos():
             if resource not in allVideoResources:
                 allVideoResources.append(resource)
 
-    except Exception:
-        raise
+    except Exception as err:
+        raise Error(err)
 
     return allVideoResources
 
 
-@cache.cached(timeout=timeout, key_prefix='getLatestVideo')
+@cache.cached(timeout=video_timeout, key_prefix='getLatestVideo')
 def getLatestVideo():
     list_of_video_resources = []
     try:
@@ -74,7 +81,7 @@ def getLatestVideo():
     return list_of_video_resources.pop()
 
 
-@cache.cached(timeout=timeout, key_prefix='getVideosByPlaylist')
+@cache.cached(timeout=video_timeout, key_prefix='getVideosByPlaylist')
 def getVideosByPlaylist():
     allVideosByPlaylistBuckets = []
     try:
@@ -116,3 +123,55 @@ def getVideosByPlaylist():
         raise
 
     return allVideosByPlaylistBuckets
+
+
+@cache.cached(timeout=product_timeout, key_prefix='getStockPrintfulCatalog')
+def getStockPrintfulCatalog(WithVariants=True):
+    """
+
+    """
+    controller = sdk.Printful()
+    res = myResponse("printful")
+    # context = inspect.stack()[0]
+
+    errors = []
+    products = []
+    products_with_variants = []
+
+    try:
+        products.extend(controller.get("products"))
+
+        if WithVariants:
+            for product in products:
+                product_api_url = "products/{}".format(product['id'])
+                product_with_variants = controller.get(product_api_url)
+                products_with_variants.append(product_with_variants)
+    except Exception as err:
+        errors.append(err)
+
+    print(str(errors))
+
+    if len(errors) > 0:
+        return res.config({'code': 404, 'results': None, 'error': errors[0]})
+    else:
+        payload = products_with_variants if WithVariants else products
+        return res.config({'code': 200, 'results': payload, 'error': None})
+
+
+@cache.cached(timeout=blog_timeout, key_prefix='getBloggerData')
+def getBloggerData():
+    url = 'https://www.googleapis.com/blogger/v3/blogs/' + \
+        current_app.config['BLOGGER_PAGE_BLOG_ID'] + '/posts'
+    params = {
+        'key': current_app.config['GOOGLE_API_KEY']
+    }
+
+    res = requests.get(url, params=params)
+    res_items = res.json().get("items")
+    coolarray = []
+    for item in res_items:
+        theTitle = item["title"]
+        theContent = item["content"]
+        post = {'title': theTitle, 'content': strip(theContent)}
+        coolarray.append(post)
+    return coolarray

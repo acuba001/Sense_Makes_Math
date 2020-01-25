@@ -3,7 +3,7 @@ import requests
 # import json
 from abc import ABC, abstractmethod
 from flask import current_app
-from . import Error
+from app.libraries import Error
 
 
 class XApiController(ABC):
@@ -497,14 +497,14 @@ class Printful(XApiController):
         pass
 
 
-class Paypal(XApiController):
-    """
-    Please See: https://www.printful.com/docs/ for
-    further details ont he Printful Api
-    """
+# class Paypal(XApiController):
+#     """
+#     Please See: https://www.printful.com/docs/ for
+#     further details ont he Printful Api
+#     """
 
-    _base_url = 'https://api.printful.com/{}'
-    timeout = 60 * current_app.config['PRINTFUL_DATA_FETCH_PER_DAY'] / 24
+#     _base_url = 'https://api.printful.com/{}'
+#     timeout = 60 * current_app.config['PRINTFUL_DATA_FETCH_PER_DAY'] / 24
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)

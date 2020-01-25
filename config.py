@@ -1,5 +1,5 @@
 import os
-import logging
+import logging.handlers
 from logging.handlers import RotatingFileHandler, SMTPHandler
 
 from dotenv import load_dotenv
@@ -160,8 +160,8 @@ class TestingConfig(Config):
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
-        cls.configure_file_logger(app)
         cls.configure_stream_logger(app)
+        cls.configure_file_logger(app)
 
 
 class StagingConfig(Config):
@@ -169,7 +169,7 @@ class StagingConfig(Config):
     DEVELOPMENT = False
     DEBUG = True
 
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('STAGING_DATABASE_URL', 'sqlite:///' + path_to_db)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('STAGING_DATABASE_URL', 'sqlite:///' + path_to_db)
 
     @classmethod
     def init_app(cls, app):
@@ -180,7 +180,7 @@ class StagingConfig(Config):
 
 
 class ProductionConfig(Config):
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('PRODUCTION_DATABASE_URL', 'sqlite:///' + path_to_db)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('PRODUCTION_DATABASE_URL', 'sqlite:///' + path_to_db)
 
     @classmethod
     def init_app(cls, app):

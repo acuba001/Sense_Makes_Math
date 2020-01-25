@@ -2,7 +2,7 @@ import unittest
 import time
 from datetime import datetime
 from app import create_app, db
-from app.api.models import User, Role, Permission  # , AnonymousUser
+from app.api.models import User, Role, Permission, AnonymousUser
 
 
 class UserModelTestCase(unittest.TestCase):
@@ -17,6 +17,12 @@ class UserModelTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
+
+    def test_init_no_role(self):
+        u = User(role=None, email='test_init_no_role@sensemakesmath.com')
+        self.assertNotEqual(u.role, None)
+        self.assertNotEqual(u.email, None)
+        self.assertEqual(u.email, 'test_init_no_role@sensemakesmath.com')
 
     def test_password_setter(self):
         u = User(password='cat')
@@ -77,10 +83,20 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(u.can(Permission.MODERATE))
         self.assertTrue(u.can(Permission.ADMIN))
 
+    def test_anonymous_user(self):
+        u = AnonymousUser()
+        self.assertFalse(u.can(Permission.FOLLOW))
+        self.assertFalse(u.can(Permission.COMMENT))
+        self.assertFalse(u.can(Permission.WRITE))
+        self.assertFalse(u.can(Permission.MODERATE))
+        self.assertFalse(u.can(Permission.ADMIN))
+
     def test_timestamps(self):
         u = User(password='cat')
         db.session.add(u)
         db.session.commit()
+        # self.assertTrue(
+        #     (datetime.utcnow() - u.member_since).total_seconds() < 3)
         self.assertTrue(
             (datetime.utcnow() - u.last_seen).total_seconds() < 3)
 
