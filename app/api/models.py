@@ -2,8 +2,8 @@ from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask import current_app, url_for
+# from hashlib import md5
 from flask_login import UserMixin, AnonymousUserMixin
-
 from app import db
 
 
@@ -227,3 +227,35 @@ class Comment(db.Model):
         if body is None or body == '':
             raise Exception('comment does not have a body')
         return Comment(body=body)
+
+
+class Video(db.Model):
+    __tablename__ = 'videos'
+    id = db.Column(db.Integer, primary_key=True)
+    resource_id = db.Column(db.Integer)
+    resource_type = db.Column(db.Text)
+    channel_id = db.Column(db.Integer)
+    player_html = db.Column(db.Text)
+
+    def to_dict(self):
+        json_video_resource = {
+            "resource_id": self.id,
+            "resource_type": self.resource_type,  # "youtube#playlist",
+            "channel_id": self.channel_id,
+            "player": {
+                "embedHtml": self.player_html
+            }
+        }
+        return json_video_resource
+
+    @staticmethod
+    def from_dict(video_resource):
+        if not isinstance(object, video_resource):
+            if not set(('resource_id', 'resource_type')) <= set(video_resource.dict_keys):
+                raise Exception('Invalid fields')
+            else:
+                raise Exception('Invalid Type')
+        return Video(
+            resource_id=video_resource['resource_id'],
+            resource_type=video_resource['resource_type']
+        )
