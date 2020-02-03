@@ -108,7 +108,7 @@ class Error(Exception):
         if isValidContext(context):
             self.context = {
                 'timestamp': datetime.now(),
-                'lineno': context.lineno,
+                'lineno': context['lineno'],
                 'filename': context['filename'].rpartition("/")[2].rpartition(".")[0],
                 'function': context['function']
             }
@@ -121,14 +121,14 @@ class Error(Exception):
             }
 
         # Configure Message
-        if isinstance(template, "") and template.count("{}") == 4:
+        if isinstance(template, str) and template.count("{}") == 4:
             self.message = template.format(
                 self.context['timestamp'],
                 self.context['lineno'],
                 self.context['filename'],
                 self.context['function']
             )
-        elif isinstance(template, "") and template.count("{}") == 2:
+        elif isinstance(template, str) and template.count("{}") == 2:
             self.message = template.format(
                 self.context['timestamp'],
                 self.context['lineno']
@@ -171,25 +171,5 @@ class BadApiCallError(Error):
         self.url = str(url)
         if message is None:
             error_type = self.type.split(">")[0]
-            message = "[{} {}] " + error_type + ": {}.{}(" + self.url + ")"
+            message = "[{} {}]  Error thrown of type: " + error_type + " while callling " + self.url + " [in {}.{}]"
         super().__init__(message, context)
-
-
-class ArithmeticOperationError(Error):
-    """
-    Raised when an operation attempts a state transition that's not allowed.
-
-    Attributes:
-        message -- explanation of the error
-        context -- the meta data of the function which made the server call
-    """
-    def __init__(self, message, context=None, params=None):
-        if set(message) <= set([None, ""]) or message.count("/{/}") != 4:
-            if params and set(("input_1", "input_2")) <= set(dir(params)):
-                self.params = params
-                message = "[{} {}] " + self.__class__ + ": " +\
-                    params["input_1"] + ".{}(" + params["input_2"] + ") -- LN {}"
-            elif params is None:
-                message = "[{} {}] " + self.__class__ + ": <Unknown>.{}(<Unknown>) -- LN {}"
-
-        super(Error, self).__init__(message, context)

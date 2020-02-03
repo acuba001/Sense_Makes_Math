@@ -33,6 +33,7 @@ class Config(object):
     DEVELOPMENT = False
     TESTING = False
     STAGING = False
+    PRODUCTION = False
     DEBUG = False
 
     ADMIN_CONTACT = os.environ.get('ADMIN_CONTACT')
@@ -180,6 +181,7 @@ class StagingConfig(Config):
 
 
 class ProductionConfig(Config):
+    PRODUCTION = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('PRODUCTION_DATABASE_URL', 'sqlite:///' + path_to_db)
 
     @classmethod

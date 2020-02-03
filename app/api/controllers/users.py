@@ -1,17 +1,17 @@
 from flask import jsonify, request, abort, g, url_for  # current_app
 
 from app import db
-from app.api import api_bp as bp
+from app.api import api_bp
 from app.api.models import User
 
 
-@bp.route('/users/<int:id>', methods=['GET'])
+@api_bp.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
     user = User.query.get_or_404(id)
     return jsonify(user.to_json())
 
 
-@bp.route('/users', methods=['GET'])
+@api_bp.route('/users', methods=['GET'])
 def get_users():
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 10, type=int), 100)
@@ -19,7 +19,7 @@ def get_users():
     return jsonify(data)
 
 
-@bp.route('/users', methods=['POST'])
+@api_bp.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json() or {}
     user = User()
@@ -32,7 +32,7 @@ def create_user():
     return response
 
 
-@bp.route('/users/<int:id>', methods=['PUT'])
+@api_bp.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     if g.current_user.id != id:
         abort(403)
