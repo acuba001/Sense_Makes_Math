@@ -67,6 +67,7 @@ def register_blueprints(app):
 
 def create_app(config_name=None):
     app = Flask(__name__)
+
     config[config_name].init_app(app)
     app.config.from_object(config[config_name])
 

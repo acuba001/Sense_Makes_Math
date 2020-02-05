@@ -26,7 +26,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 if not os.path.exists('.db'):
     os.mkdir('.db')
-path_to_db = os.path.join(basedir, '.db', "data-main.sqlite")
+path_to_db = os.path.join(basedir, '.db', "data-dev.sqlite")
 
 
 class Config(object):
@@ -37,47 +37,40 @@ class Config(object):
     DEBUG = False
 
     ADMIN_CONTACT = os.environ.get('ADMIN_CONTACT')
-    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')
-    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-
-    # Mail
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_SENDER = os.environ.get('MAIL_SENDER')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'), base=10)
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
-
-    # security
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    SSL_REDIRECT = False
-
-    # SQLAlchemy
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + path_to_db)
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_RECORD_QUERIES = True
 
     # Blogger
     BLOGGER_DATA_FETCH_PER_DAY = int(os.environ.get('BLOGGER_DATA_FETCH_PER_DAY', 15))
     BLOGGER_PAGE_BLOG_ID = os.environ.get('BLOGGER_PAGE_BLOG_ID')
+
+    # Cache
+    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')
 
     # ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
     # Google
     GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
+    # Mail
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'), base=10)
+    MAIL_SENDER = os.environ.get('MAIL_SENDER')
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+
     # PayPal
-    PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')
-    PAYPAL_SANDBOX_ACCOUNT = os.environ.get('PAYPAL_SANDBOX_ACCOUNT')
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
+    PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')
+    PAYPAL_SANDBOX_ACCOUNT = os.environ.get('PAYPAL_SANDBOX_ACCOUNT')
 
     # Printful
-    PRINTFUL_STORE_ID = os.environ.get('PRINTFUL_STORE_ID')
     PRINTFUL_API_KEY = os.environ.get('PRINTFUL_API_KEY')
     PRINTFUL_DATA_FETCH_PER_DAY = int(os.environ.get('PRINTFUL_DATA_FETCH_PER_DAY', 30))
     PRINTFUL_DATA_MAXRESULTS = int(os.environ.get('PRINTFUL_DATA_MAXRESULTS', 100))
+    PRINTFUL_STORE_ID = os.environ.get('PRINTFUL_STORE_ID')
 
+    # Security
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SSL_REDIRECT = False
 
@@ -85,10 +78,15 @@ class Config(object):
     SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
 
+    # SQLAlchemy
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + path_to_db)
+    SQLALCHEMY_RECORD_QUERIES = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     # YouTube
+    YOUTUBE_CHANNEL_ID = os.environ.get('YOUTUBE_CHANNEL_ID')
     YOUTUBE_DATA_FETCH_PER_DAY = int(os.environ.get('YOUTUBE_DATA_FETCH_PER_DAY', 48))
     YOUTUBE_DATA_MAXRESULTS = int(os.environ.get('YOUTUBE_DATA_MAXRESULTS', 30))
-    YOUTUBE_CHANNEL_ID = os.environ.get('YOUTUBE_CHANNEL_ID')
 
     @staticmethod
     def init_app(app):

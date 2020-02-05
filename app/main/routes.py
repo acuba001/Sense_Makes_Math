@@ -1,24 +1,24 @@
 from flask import current_app, render_template  # , redirect, abort, make_response, url_for, request
-from flask_sqlalchemy import get_debug_queries
+# from flask_sqlalchemy import get_debug_queries
 from flask_cors import cross_origin
 # from flask_login import login_required  # , current_user
 
-from app.main import main_bp
+from . import main_bp
 
 # from app.api.models import User, Comment, Role, Permission  #
-from app.api.controllers import youtube as yt
+from app.api.services import videoService as video
 # from app.api.utils.decorators import admin_required, permission_required
 
 
-@main_bp.after_app_request
-def after_request(response):
-    for query in get_debug_queries():
-        if query.duration >= current_app.config['FLASKY_SLOW_DB_QUERY_TIME']:
-            current_app.logger.warning(
-                'Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n'
-                % (query.statement, query.parameters, query.duration,
-                   query.context))
-    return response
+# @main_bp.after_app_request
+# def after_request(response):
+#     for query in get_debug_queries():
+#         if query.duration >= current_app.config['FLASKY_SLOW_DB_QUERY_TIME']:
+#             current_app.logger.warning(
+#                 'Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n'
+#                 % (query.statement, query.parameters, query.duration,
+#                    query.context))
+#     return response
 
 
 @main_bp.route('/')
@@ -27,7 +27,7 @@ def after_request(response):
 def index():
     return render_template(
         'index.html',
-        videos=yt.getAllVideos(),
+        videos=video.getAllVideos(),
         channelID=current_app.config['YOUTUBE_CHANNEL_ID'])
 
 

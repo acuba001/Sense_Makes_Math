@@ -1,43 +1,31 @@
-import re
-# from app.errors import BadApiCallError, Error
+from flask import Response
 
 
-def strip_html(raw_html):
-    re.purge()
-
-    # Strip HTML Tags
-    template1 = re.compile(r"<.*?>")
-    _html = re.sub(template1, '', raw_html)
-
-    # Strip HTML extra characters
-    template2 = re.compile(r"/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig")
-    clean_html = re.sub(template2, '', _html)
-
-    clean_html = clean_html.replace('\n', ' ')
-
-    clean_html = clean_html.replace('&nbsp;', '')
-
-    return clean_html
-
-
-class myResponse():
-    """Work in Progress"""
-    def __init__(self, source=None, res=None):
-        self.source = source or ""
-        self.xRes = res
-        self.content = {
-            'code': None,
-            'data': None,
-            'error': {
-                'reason': None,
-                'message': None
-            },
-            'paging': {
-                'total': 0,
-                'offset': 0,
-                'limit': 0
-            }
+class Res(Response):
+    """
+    """
+    _content = {
+        'code': None,
+        'data': None,
+        'error': {
+            'reason': None,
+            'message': None
+        },
+        'paging': {
+            'total': 0,
+            'offset': 0,
+            'limit': 0
         }
+    }
+
+    def __init__(self, source=None, res=None, *args, **kwargs):
+        self.source = source
+        self.xRes = res
+        self.content = self._content
+        super(Response, self).__init__(*args, **kwargs)
+
+    def __repr__(self):
+        pass
 
     def config(self, response):
         if isinstance(response, {}):
